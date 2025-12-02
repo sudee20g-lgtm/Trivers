@@ -1,0 +1,45 @@
+name: flutter_application_1
+description: TriVerse - QR Kart Oyunu
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  just_audio: ^0.9.40
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    #assets/images/logo.png
+    - assets/audio/background.mp3
+    - assets/audio/static.mp3
+    - assets/audio/alien_signal.mp3
+    - assets/icons/tr_flag.png
+    - assets/icons/en_flag.png
+    - assets/gif/background.gif
+    - assets/images/triverse_box.jpg
+    - assets/images/triverse_gameplay.jpg
+    - assets/images/background_static.jpg 
+    - assets/images/uzaybolum1.jpg
+    - assets/images/buzul1.png
+    - assets/images/11.png
+
+
+  fonts:
+    - family: Orbitron
+      fonts:
+        - asset: assets/fonts/Orbitron-Regular.ttf
+        - asset: assets/fonts/Orbitron-Bold.ttf
+          weight:    700
+  
+  
