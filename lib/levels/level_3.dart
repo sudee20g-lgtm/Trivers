@@ -1,155 +1,219 @@
 import 'package:flutter/material.dart';
 import '../utils/app_texts.dart';
-import '../utils/app_styles.dart';
-import '../utils/game_data.dart';
+import '../widgets/physical_card_widget.dart';
 
 class Level3 extends StatefulWidget {
   final String language;
   const Level3({super.key, required this.language});
+
   @override
   State<Level3> createState() => _Level3State();
 }
 
 class _Level3State extends State<Level3> {
-  int _stage = 1;
+  int _step = 1;
   final TextEditingController _s1Ctrl = TextEditingController();
-  double _freq = 100;
+  final TextEditingController _s2Ctrl = TextEditingController();
+  final TextEditingController _s3Ctrl = TextEditingController();
+
+  final List<String> _puzzleLetters = [
+    'U', 'K', 'X', 'Z', 'Q', 'W', 'E', 'R',
+    'A', 'Y', 'T', 'Y', 'U', 'I', 'O', 'P',
+    'Z', 'X', 'A', 'S', 'D', 'F', 'G', 'H',
+    'L', 'K', 'J', 'N', 'B', 'V', 'C', 'M',
+    'Q', 'W', 'E', 'R', 'D', 'T', 'Y', 'U',
+    'O', 'P', 'Ğ', 'Ü', 'S', 'I', 'L', 'K',
+    'Z', 'O', 'R', 'L', 'U', 'K', 'X', 'J',
+    'V', 'B', 'O', 'N', 'L', 'A', 'R', 'M',
+  ];
 
   void _next() {
-    if (_stage < 3) {
-      setState(() => _stage++);
+    // 1: Şifre, 2: Kart, 3: Mors, 4: Gardiyan
+    if (_step < 4) {
+      setState(() => _step++);
+      FocusScope.of(context).unfocus();
     } else {
-      _win();
+      // Bitiş
     }
   }
 
-  void _win() {
-    GameData.unlockNextLevel(3);
-    showModalBottomSheet(
-        context: context,
-        isDismissible: false,
-        backgroundColor: Colors.transparent,
-        builder: (c) => _popup());
+  void _err() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          widget.language == 'tr' ? "ERİŞİM REDDEDİLDİ." : "ACCESS DENIED.",
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.red[900],
+        duration: const Duration(milliseconds: 1200),
+      ),
+    );
   }
-
-  Widget _popup() => Container(
-      height: 300,
-      decoration: const BoxDecoration(
-          color: Color(0xFF0b0e17),
-          border: Border(top: BorderSide(color: Colors.greenAccent, width: 3)),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Icon(Icons.check_circle, color: Colors.greenAccent, size: 80),
-        Text(AppTexts.get('success', widget.language),
-            style: AppStyles.titleStyle(Colors.greenAccent)),
-        const SizedBox(height: 10),
-        Text(AppTexts.get('l3_reward', widget.language),
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white)),
-        const SizedBox(height: 20),
-        ElevatedButton(
-            style:
-                ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent),
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: Text(AppTexts.get('continue', widget.language),
-                style: const TextStyle(color: Colors.black)))
-      ]));
-  void _err() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(AppTexts.get('retry', widget.language)),
-      backgroundColor: Colors.red));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0b0e17),
+      backgroundColor: Colors.black,
       appBar: AppBar(
-          title: Text(
-              "${AppTexts.get('l3_title', widget.language)} - STAGE $_stage/3",
-              style: const TextStyle(color: Colors.cyanAccent, fontSize: 14)),
-          backgroundColor: Colors.transparent,
-          iconTheme: const IconThemeData(color: Colors.cyanAccent)),
-      body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20), child: _content()),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text("LEVEL 3 - ${widget.language == 'tr' ? 'OKYANUS' : 'OCEAN'}",
+          style: const TextStyle(color: Colors.white, fontFamily: 'Courier', letterSpacing: 2)),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              LinearProgressIndicator(
+                value: _step / 4,
+                backgroundColor: Colors.grey[900],
+                valueColor: AlwaysStoppedAnimation<Color>(_step == 4 ? Colors.red : Colors.blueAccent),
+                minHeight: 5,
+              ),
+              const SizedBox(height: 40),
+              if (_step == 1) _s1(),
+              if (_step == 2) _stageCard(), // YENİ
+              if (_step == 3) _s2(),
+              if (_step == 4) _s3(),
+              if (_step >= 5) _endScreen(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _content() {
-    if (_stage == 1) return _s1();
-    if (_stage == 2) return _s2();
-    return _s3();
+  Widget _stageCard() {
+    return PhysicalCardWidget(
+      language: widget.language,
+      cardNameKey: 'c3_name',
+      questionKey: 'c3_q',
+      optAKey: 'c3_a', // Doğru: Kas eti (Ciğer zehirli)
+      optBKey: 'c3_b',
+      correctIndex: 0,
+      onCorrect: _next,
+    );
   }
 
-  // STAGE 1: ŞİFRE
+  // --- Orijinal _s1, _s2, _s3 kodları ---
   Widget _s1() {
-    return Column(children: [
-      Text(AppTexts.get('l3_s1_story', widget.language),
-          style: const TextStyle(color: Colors.white)),
-      const SizedBox(height: 20),
-      const Text("J - K - N - G - T",
-          style: TextStyle(color: Colors.red, fontSize: 30, letterSpacing: 5)),
-      TextField(
+    return Column(
+      children: [
+        Text(AppTexts.get('l3_s1_story', widget.language), style: const TextStyle(color: Colors.white, fontSize: 16), textAlign: TextAlign.center),
+        const SizedBox(height: 15),
+        Container(
+          padding: const EdgeInsets.all(5),
+          color: Colors.black,
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 8,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 4,
+            ),
+            itemCount: _puzzleLetters.length,
+            itemBuilder: (context, index) {
+              return Container(
+                alignment: Alignment.center,
+                color: Colors.grey[900],
+                child: Text(_puzzleLetters[index],
+                  style: TextStyle(color: Colors.greenAccent.withAlpha(230), fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Courier'),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 25),
+        TextField(
           controller: _s1Ctrl,
-          decoration: InputDecoration(
-              hintText: AppTexts.get('l3_s1_input', widget.language),
-              filled: true,
-              fillColor: Colors.white10)),
-      ElevatedButton(
+          style: const TextStyle(color: Colors.white),
+          textAlign: TextAlign.center,
+          decoration: const InputDecoration(filled: true, fillColor: Colors.white12),
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
           onPressed: () {
-            String t = _s1Ctrl.text.toUpperCase().trim();
-            if (t == "ONLAR UYANDI" || t == "THEY AWOKE") {
+            String input = _s1Ctrl.text.trim().toUpperCase();
+            if (["ONLAR UYANDI", "THEY AWOKE"].contains(input)) {
               _next();
             } else {
               _err();
             }
           },
-          child: Text(AppTexts.get('check', widget.language)))
-    ]);
+          child: Text(AppTexts.get('check', widget.language)),
+        ),
+      ],
+    );
   }
 
-  // STAGE 2: MORS
   Widget _s2() {
-    return Column(children: [
-      Text(AppTexts.get('l3_s2_story', widget.language),
-          style: const TextStyle(color: Colors.white)),
-      const SizedBox(height: 30),
-      const Text("... --- ...",
-          style: TextStyle(
-              color: Colors.yellow, fontSize: 40, fontWeight: FontWeight.bold)),
-      const SizedBox(height: 30),
-      _btn(AppTexts.get('l3_s2_opt1', widget.language), false),
-      const SizedBox(height: 10),
-      _btn(AppTexts.get('l3_s2_opt2', widget.language), true), // SOS
-    ]);
-  }
-
-  // STAGE 3: FREKANS
-  Widget _s3() {
-    return Column(children: [
-      Text(AppTexts.get('l3_s3_story', widget.language),
-          style: const TextStyle(color: Colors.white)),
-      const SizedBox(height: 30),
-      Text("${_freq.toInt()} Hz",
-          style: const TextStyle(color: Colors.greenAccent, fontSize: 40)),
-      Slider(
-          value: _freq,
-          min: 100,
-          max: 600,
-          onChanged: (v) => setState(() => _freq = v)),
-      ElevatedButton(
+    return Column(
+      children: [
+        Text(AppTexts.get('l3_s2_story', widget.language), style: const TextStyle(color: Colors.white)),
+        const SizedBox(height: 25),
+        const Text("...-- | ..... | --...", style: TextStyle(color: Colors.white, fontSize: 24)),
+        const SizedBox(height: 25),
+        TextField(
+          controller: _s2Ctrl,
+          keyboardType: TextInputType.number,
+          style: const TextStyle(color: Colors.white, fontSize: 20),
+          textAlign: TextAlign.center,
+          decoration: const InputDecoration(filled: true, fillColor: Colors.white12),
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
           onPressed: () {
-            if ((_freq - 440).abs() < 10) {
+            if (_s2Ctrl.text.trim() == "357") {
               _next();
             } else {
               _err();
             }
           },
-          child: Text(AppTexts.get('check', widget.language)))
-    ]);
+          child: Text(AppTexts.get('check', widget.language)),
+        ),
+      ],
+    );
   }
 
-  Widget _btn(String t, bool c) =>
-      ElevatedButton(onPressed: () => c ? _next() : _err(), child: Text(t));
+  Widget _s3() {
+    return Column(
+      children: [
+        Text(AppTexts.get('l3_s3_story', widget.language), style: const TextStyle(color: Colors.white)),
+        const SizedBox(height: 20),
+        TextField(
+          controller: _s3Ctrl,
+          style: const TextStyle(color: Colors.white),
+          textAlign: TextAlign.center,
+          decoration: const InputDecoration(filled: true, fillColor: Colors.white12),
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () {
+            if (_s3Ctrl.text.trim().toUpperCase() == "HADES") {
+              _step++; // Ekranda endScreen görünmesi için
+              setState(() {});
+            } else {
+              _err();
+            }
+          },
+          child: Text(AppTexts.get('check', widget.language)),
+        ),
+      ],
+    );
+  }
+
+  Widget _endScreen() {
+    return Column(children: [
+      const Icon(Icons.waves, color: Colors.blueAccent, size: 80),
+      const SizedBox(height: 20),
+      const Text("OKYANUS GEÇİLDİ", style: TextStyle(color: Colors.white, fontSize: 24)),
+      const SizedBox(height: 30),
+      ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("MENÜYE DÖN"))
+    ]);
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/app_texts.dart';
 import '../utils/app_styles.dart';
 import '../utils/game_data.dart';
+import '../widgets/physical_card_widget.dart';
 
 class Level1 extends StatefulWidget {
   final String language;
@@ -11,14 +12,12 @@ class Level1 extends StatefulWidget {
 }
 
 class _Level1State extends State<Level1> {
-  int _stage = 1; // Hangi aşamadayız?
-
-  // STAGE 3 Değişkenleri (Valf Sıralaması)
+  int _stage = 1;
   final List<int> _valves = [1, 2, 3, 4, 5, 6, 7];
   final List<int> _selectedValves = [];
 
   void _nextStage() {
-    if (_stage < 3) {
+    if (_stage < 4) { // Artık 4 aşama var
       setState(() => _stage++);
     } else {
       _showVictory();
@@ -35,8 +34,7 @@ class _Level1State extends State<Level1> {
         height: 300,
         decoration: const BoxDecoration(
             color: Color(0xFF0b0e17),
-            border:
-                Border(top: BorderSide(color: Colors.greenAccent, width: 3)),
+            border: Border(top: BorderSide(color: Colors.greenAccent, width: 3)),
             borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           const Icon(Icons.check_circle, color: Colors.greenAccent, size: 80),
@@ -48,8 +46,7 @@ class _Level1State extends State<Level1> {
               style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 20),
           ElevatedButton(
-              style:
-                  ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent),
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.pop(context);
@@ -65,8 +62,8 @@ class _Level1State extends State<Level1> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(AppTexts.get('retry', widget.language)),
         backgroundColor: Colors.red));
-    if (_stage == 3) {
-      setState(() => _selectedValves.clear()); // Hata yaparsa sıfırla
+    if (_stage == 4) {
+      setState(() => _selectedValves.clear());
     }
   }
 
@@ -76,7 +73,7 @@ class _Level1State extends State<Level1> {
       backgroundColor: const Color(0xFF0b0e17),
       appBar: AppBar(
           title: Text(
-              "${AppTexts.get('l1_title', widget.language)} - ${AppTexts.get('stage_prefix', widget.language)} $_stage/3",
+              "${AppTexts.get('l1_title', widget.language)} - ${AppTexts.get('stage_prefix', widget.language)} $_stage/4",
               style: const TextStyle(color: Colors.cyanAccent, fontSize: 14)),
           backgroundColor: Colors.transparent,
           iconTheme: const IconThemeData(color: Colors.cyanAccent)),
@@ -87,11 +84,23 @@ class _Level1State extends State<Level1> {
 
   Widget _buildStageContent() {
     if (_stage == 1) return _stage1Matrix();
-    if (_stage == 2) return _stage2Riddle();
+    if (_stage == 2) return _stageCard(); // YENİ
+    if (_stage == 3) return _stage2Riddle();
     return _stage3Sequence();
   }
 
-  // --- STAGE 1: MATRİS ---
+  Widget _stageCard() {
+    return PhysicalCardWidget(
+      language: widget.language,
+      cardNameKey: 'c1_name',
+      questionKey: 'c1_q',
+      optAKey: 'c1_a',
+      optBKey: 'c1_b', // Doğru: Kar çukuru
+      correctIndex: 1,
+      onCorrect: _nextStage,
+    );
+  }
+
   Widget _stage1Matrix() {
     return Column(children: [
       Container(
@@ -100,7 +109,6 @@ class _Level1State extends State<Level1> {
           child: Text(AppTexts.get('l1_s1_story', widget.language),
               style: AppStyles.storyStyle)),
       const SizedBox(height: 20),
-      // Matris [+5, -3, +2] = 4, [-8, +4, +1] = -3, [?, -2, +6]. ? = -4
       Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(border: Border.all(color: Colors.blueAccent)),
@@ -125,7 +133,6 @@ class _Level1State extends State<Level1> {
     ]);
   }
 
-  // --- STAGE 2: BİLMECE ---
   Widget _stage2Riddle() {
     return Column(children: [
       Container(
@@ -141,15 +148,13 @@ class _Level1State extends State<Level1> {
       const SizedBox(height: 30),
       _btn(AppTexts.get('l1_s2_opt1', widget.language), false),
       const SizedBox(height: 10),
-      _btn(AppTexts.get('l1_s2_opt2', widget.language), true), // BULUT
+      _btn(AppTexts.get('l1_s2_opt2', widget.language), true),
       const SizedBox(height: 10),
       _btn(AppTexts.get('l1_s2_opt3', widget.language), false),
     ]);
   }
 
-  // --- STAGE 3: ASAL SAYILAR ---
   Widget _stage3Sequence() {
-    // Asallar: 2, 3, 5, 7. Sırayla seçmeli.
     return Column(children: [
       Container(
           padding: const EdgeInsets.all(15),
@@ -168,7 +173,6 @@ class _Level1State extends State<Level1> {
                   : () {
                       setState(() {
                         _selectedValves.add(v);
-                        // Kontrol
                         List<int> correct = [2, 3, 5, 7];
                         if (_selectedValves.length > correct.length) {
                           _showError();
@@ -187,8 +191,7 @@ class _Level1State extends State<Level1> {
                   radius: 30,
                   backgroundColor: isSelected ? Colors.green : Colors.grey[800],
                   child: Text("$v",
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 20))),
+                      style: const TextStyle(color: Colors.white, fontSize: 20))),
             );
           }).toList()),
       const SizedBox(height: 20),
@@ -203,10 +206,5 @@ class _Level1State extends State<Level1> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: s
-              .map((e) => Text(e,
-                  style: TextStyle(
-                      fontSize: 24,
-                      color: e == "?" ? Colors.red : Colors.white)))
-              .toList()));
+          children: s.map((e) => Text(e, style: TextStyle(fontSize: 24, color: e == "?" ? Colors.red : Colors.white))).toList()));
 }

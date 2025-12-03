@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   just_audio: ^0.9.40
+  audioplayers: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -22,8 +23,6 @@ flutter:
   assets:
     #assets/images/logo.png
     - assets/audio/background.mp3
-    - assets/audio/static.mp3
-    - assets/audio/alien_signal.mp3
     - assets/icons/tr_flag.png
     - assets/icons/en_flag.png
     - assets/gif/background.gif
@@ -33,6 +32,7 @@ flutter:
     - assets/images/uzaybolum1.jpg
     - assets/images/buzul1.png
     - assets/images/11.png
+    - assets/audio/typewriter_key.mp3
 
 
   fonts:
