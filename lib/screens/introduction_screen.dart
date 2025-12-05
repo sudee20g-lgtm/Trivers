@@ -24,17 +24,24 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
   int _index = 0;
   Timer? _timer;
   final AudioPlayer _audioPlayer = AudioPlayer();
+  
+  // Sesin üst üste binip çökmesini önlemek için basit bir kontrol bayrağı
+  bool _isPlayingSound = false; 
 
   @override
   void initState() {
     super.initState();
     _story = AppTexts.get('intro_story', widget.language);
 
-    // HATA DÜZELTİLDİ: (t) async kaldırıldı
     _timer = Timer.periodic(const Duration(milliseconds: 30), (t) {
+      // ÖNEMLİ DÜZELTME: Widget ekranda değilse işlemi durdur (Çökme Engellendi)
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+
       if (_index < _story.length) {
-        
-        // Ses çalma işlemi asenkron bekletilmeden (await olmadan) yapılıyor
+        // Boşluk karakterlerinde ses çalma
         if (_story[_index] != ' ') {
           _playTypeSound();
         }
@@ -49,11 +56,23 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     });
   }
 
-  // Sesi çalmak için yardımcı, beklemesiz fonksiyon
-  void _playTypeSound() {
-    _audioPlayer.stop().then((_) {
-      _audioPlayer.play(AssetSource('audio/typewriter_key.mp3'), volume: 0.3);
-    });
+  // Güvenli Ses Çalma Fonksiyonu
+  Future<void> _playTypeSound() async {
+    // Eğer zaten bir ses işleniyorsa veya widget yoksa atla
+    if (_isPlayingSound || !mounted) return;
+
+    _isPlayingSound = true;
+    try {
+      // stop() çağrısı bazen gecikme yaratabilir, doğrudan çalmayı dene
+      // Veya kısa sesler için stop'a gerek olmayabilir.
+      await _audioPlayer.stop(); 
+      await _audioPlayer.play(AssetSource('audio/typewriter_key.mp3'), volume: 0.3);
+    } catch (e) {
+      // Ses dosyası yoksa veya hata olursa uygulamanın çökmesini engelle
+      debugPrint("Ses hatası: $e");
+    } finally {
+      _isPlayingSound = false;
+    }
   }
 
   @override
@@ -91,13 +110,16 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.cyanAccent),
                 onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => LevelSelectionScreen(
-                                onResumeMusic: widget.onResumeMusic,
-                                language: widget.language,
-                              )));
+                  // Sayfa geçişinde hata olmaması için mounted kontrolü
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => LevelSelectionScreen(
+                                  onResumeMusic: widget.onResumeMusic,
+                                  language: widget.language,
+                                )));
+                  }
                 },
                 child: Text(AppTexts.get('start_link', widget.language),
                     style: const TextStyle(color: Colors.black)),
