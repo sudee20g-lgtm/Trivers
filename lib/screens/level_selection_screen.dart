@@ -155,7 +155,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
     // MANUEL GEÇİŞ SİSTEMİ
     switch (level) {
       case 1:
-        nextScreen = Level1(language: widget.language);
+        nextScreen = const Level1();
         break;
       case 2:
         nextScreen = Level2(language: widget.language);

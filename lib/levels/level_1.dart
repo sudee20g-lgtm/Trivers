@@ -1,172 +1,356 @@
 import 'package:flutter/material.dart';
-// Döndürme için gerekli
-import '../utils/app_texts.dart';
-import '../utils/app_styles.dart';
-import '../utils/game_data.dart';
-import '../utils/question_data.dart';
 import '../widgets/triverse_ui.dart';
 
+// --- ANA LEVEL 1 CLASSI ---
 class Level1 extends StatefulWidget {
-  final String language;
-  const Level1({super.key, required this.language});
+  const Level1({super.key});
+
   @override
   State<Level1> createState() => _Level1State();
 }
 
 class _Level1State extends State<Level1> {
-  int _stage = 1;
-  final TextEditingController _cardInputCtrl = TextEditingController();
-  Question? _currentCardQuestion;
-  final Color _themeColor = Colors.cyanAccent;
+  int currentLevel = 1;
 
-  // --- YENİ VANA SİSTEMİ DEĞİŞKENLERİ ---
-  // 3 Vana: Açılar (0=Doğru, 90, 180, 270)
-  List<double> _valveAngles = [90.0, 270.0, 180.0]; 
+  // HİKAYE VERİLERİ
+  final Map<int, Map<String, dynamic>> levelData = {
+    1: {
+      "title": "KRİYO TÜPLERİ",
+      "story": "Sistem uyarısı: Soğutma sıvısı sızıyor. Vanaları kapatıp basıncı dengelemezsen örnekler çözülecek.",
+      "task": "Basıncı dengelemek için vanayı doğru açıya getir.",
+    },
+    2: {
+      "title": "DONMUŞ DOKU",
+      "story": "Buzun içinde tanımlanamayan bir organik kütle var. DNA tarayıcısı hata veriyor: 'EŞLEŞME BULUNAMADI'. Bu dünya dışı değil ama dünyadaki hiçbir familyaya da ait değil.",
+      "task": "Örnek numarasındaki eksik haneyi gir: X-9?2",
+      "answer": "7", 
+    },
+    3: {
+      "title": "HAYALET KOORDİNATLAR",
+      "story": "Navigasyon sistemi çöktü. Cihazımız [82°S, 150°E] gösteriyor ama haritalarda burası okyanus olmalı. Elimizde sadece parçalanmış eski bir harita var.",
+      "task": "Harita parçalarını birleştir ve konumunu doğrula.",
+    }
+  };
 
-  void _nextStage() {
-    setState(() {
-      _stage++;
-      _cardInputCtrl.clear();
-      _currentCardQuestion = null;
-      // Vanaları bir sonraki oyun için sıfırla (gerekirse)
-      _valveAngles = [90.0, 270.0, 180.0];
-    });
-    if (_stage > 12) _showVictory();
-  }
-
-  // --- VANA DÖNDÜRME MANTIĞI (ZOR) ---
-  void _rotateValve(int index) {
-    setState(() {
-      // Tıklanan vanayı 90 derece çevir
-      _valveAngles[index] = (_valveAngles[index] + 90) % 360;
-
-      // ZORLUK: Bir vanayı çevirmek yanındakini de etkiler!
-      if (index == 0) {
-        // 1. Vana, 2. Vanayı ters yöne çevirir
-        _valveAngles[1] = (_valveAngles[1] - 90) % 360;
-        if(_valveAngles[1] < 0) _valveAngles[1] += 360;
-      } 
-      else if (index == 1) {
-        // 2. Vana, 3. Vanayı etkiler
-        _valveAngles[2] = (_valveAngles[2] + 90) % 360;
-      }
-      else if (index == 2) {
-        // 3. Vana, 1. Vanayı etkiler (Döngü)
-        _valveAngles[0] = (_valveAngles[0] + 90) % 360;
-      }
-
-      // KONTROL: Hepsi 0 (Yukarı) oldu mu?
-      if (_valveAngles[0] == 0 && _valveAngles[1] == 0 && _valveAngles[2] == 0) {
-        Future.delayed(const Duration(milliseconds: 500), _nextStage);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("BASINÇ STABİLİZE EDİLDİ!"), backgroundColor: Colors.green));
-      }
-    });
-  }
-
-  void _showVictory() {
-    GameData.unlockNextLevel(1);
-    showFullStoryDialog(
-      context: context,
-      color: _themeColor,
-      title: "GÜNLÜK NO: 104",
-      logCode: "SES_KAYDI_X72",
-      storyText: "\"Jeneratörler çalışıyor ama bu beni rahatlatmadı.\n\nIşıklar geri geldiğinde koridorun sonunda buzun içine hapsolmuş bir 'şey' gördüm. İnsan değil. Ve vanaları açtığımızda... o şeyin göz kapakları titredi.\n\nSinyal, istasyonun altındaki sondaj kuyusundan geliyor. Onu biz uyandırdık.\"",
-      onContinue: () {
-        Navigator.pop(context); Navigator.pop(context);
-      },
-    );
-  }
-  
-  void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg, style: const TextStyle(color: Colors.white)), backgroundColor: Colors.red.shade900));
+  void checkAnswer(String input) {
+    if (input == levelData[2]!['answer']) {
+      setState(() {
+        currentLevel = 3;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Hatalı Veri Girişi!"), backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final data = levelData[currentLevel]!;
+
     return TriverseScaffold(
-      title: "BUZULLAR FAZ I",
-      levelName: AppTexts.get('l1_title', widget.language),
-      themeColor: _themeColor,
-      child: AnimatedSwitcher(duration: const Duration(milliseconds: 600), child: KeyedSubtree(key: ValueKey(_stage), child: _buildContent())),
-    );
-  }
-
-  Widget _buildContent() {
-    switch (_stage) {
-      // Hikaye ve bulmaca akışı (Textler güncellendi)
-      case 1: return _buildDiscovery("SİNYAL TESPİTİ", "Sensörler, 3000 metre derinlikte 'ritmik' bir sismik aktivite algıladı. Bu doğal değil. Bu bir kalp atışı.\n\nÖnce istasyonun ana gücünü geri getirmeliyiz.");
-      case 2: return _buildPuzzleMatrix(); // Voltaj (Aynı kaldı)
-      case 3: return _buildStoryLog("SİSTEM AKTİF", "Güç geri geldi ama vanalar donmuş durumda. Borulardaki basınç kritik seviyede. Patlamayı önlemek için hidrolik akışı dengele.");
-      
-      // YENİ VANA BULMACASI
-      case 4: return _buildPuzzleValves(); 
-      
-      case 5: return _buildCardStep(); 
-      case 6: return _buildRiddle("Soğuk nefes alır ama canlı değildir. Beyaz bir örtü örter ama üşümez. Ben neyim?", "BUZUL (GLACIER)", 1);
-      case 7: return _buildStoryLog("DERİN TİTREŞİM", "Vanalardan geçen sıcak su, alt katmanlardaki buzu eritiyor. Aşağıdan metalik gıcırtılar geliyor. Bir kapı açılıyor olmalı.");
-      case 8: return _buildCardStep(); 
-      case 9: return _buildDiscovery("TERK EDİLMİŞ GÜNLÜK", "Eski şefin notu: 'Okyanustan gelen fısıltıları duyuyor musunuz? Buzun içinden geçiyorlar. Bizi aşağı çağırıyorlar.'");
-      case 10: return _buildRiddle("Işığım mavidir ama gökyüzü değilim. Derinim ama deniz değilim.", "BUZ MAĞARASI (ICE CAVE)", 2);
-      case 11: return _buildPuzzleWiring();
-      case 12: return _buildStoryLog("SON HAZIRLIK", "Asansör boşluğu temizlendi. Aşağıya inen halatlar sağlam görünüyor. Derinliklere iniyoruz. Tanrı yardımcımız olsun.");
-      default: return Container();
-    }
-  }
-
-  // --- YENİ VANA WIDGET ---
-  Widget _buildPuzzleValves() {
-    return MissionCard(
-      color: Colors.orangeAccent,
-      header: "HİDROLİK KİLİT",
-      story: "Vanalar paslanmış ve birbirine bağlı. Birini çevirmek diğerlerini de etkiliyor. Tüm göstergeleri YUKARI (Yeşil) konuma getir.",
-      content: Column(
+      title: data['title'],
+      levelName: "ZONE 3 - SEVİYE $currentLevel",
+      themeColor: Colors.cyanAccent,
+      child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(3, (index) {
-              bool isCorrect = _valveAngles[index] == 0;
-              return GestureDetector(
-                onTap: () => _rotateValve(index),
-                child: Column(
-                  children: [
-                    // DÖNEN VANA İKONU
-                    AnimatedRotation(
-                      turns: _valveAngles[index] / 360,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutBack,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: isCorrect ? Colors.green : Colors.red, width: 3),
-                          color: Colors.white10,
-                        ),
-                        child: Icon(Icons.settings, size: 40, color: isCorrect ? Colors.green : Colors.grey),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text("VANA ${index+1}", style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                  ],
-                ),
-              );
-            }),
+          MissionCard(
+            header: "GÖREV GÜNCESİ",
+            story: data['story'],
+            color: Colors.cyanAccent,
+            content: Text(
+              data['task'],
+              style: const TextStyle(color: Colors.white70, fontFamily: 'Courier'),
+            ),
           ),
-          const SizedBox(height: 20),
-          const Text("DURUM: KRİTİK", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, letterSpacing: 2)),
+          const Spacer(),
+          Expanded(
+            flex: 2,
+            child: Center(
+              child: _buildLevelContent(),
+            ),
+          ),
+          const Spacer(),
         ],
       ),
     );
   }
 
-  // ... Diğer standart widgetlar (CardStep, Riddle vb.) buraya gelecek ...
-  // (Önceki kodlardakiyle aynı, sadece _buildContent içinde sıraları değişti)
-  Widget _buildStoryLog(String title, String text) {
-    return MissionCard(color: Colors.white, isLog: true, header: title, story: text, content: SizedBox(width: double.infinity, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.white10, side: const BorderSide(color: Colors.white54), padding: const EdgeInsets.symmetric(vertical: 15)), onPressed: _nextStage, child: const Text("DEVAM ET", style: TextStyle(color: Colors.white, letterSpacing: 2)))));
+  Widget _buildLevelContent() {
+    if (currentLevel == 1) {
+      return SimpleValve(
+        onUnlock: () {
+          setState(() => currentLevel = 2);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Basınç Dengelendi."), backgroundColor: Colors.green),
+          );
+        },
+      );
+    } else if (currentLevel == 2) {
+      return _buildLevel2Input();
+    } else if (currentLevel == 3) {
+      return ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.cyanAccent.withOpacity(0.2),
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+          side: const BorderSide(color: Colors.cyanAccent),
+        ),
+        icon: const Icon(Icons.map, color: Colors.cyanAccent),
+        label: const Text("HARİTA ONARIMINI BAŞLAT >", style: TextStyle(color: Colors.white, fontFamily: 'Courier')),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => TornMapPuzzle(
+              onPuzzleSolved: () {
+                Navigator.pop(context);
+                showFullStoryDialog(
+                  context: context,
+                  title: "SEKTÖR NULL",
+                  logCode: "ERR-404",
+                  storyText: "Harita tamamlandı... Burası dünyadaki hiçbir kayıtta yok. Bilinmeyen bir kıtadasınız.",
+                  color: Colors.redAccent,
+                  onContinue: () {}, // Buraya sonraki seviye kodu gelecek
+                );
+              },
+            )),
+          );
+        },
+      );
+    }
+    return const SizedBox();
   }
-  
-  Widget _buildDiscovery(String title, String text) { return MissionCard(color: _themeColor, header: title, story: text, content: SizedBox(width: double.infinity, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: _themeColor.withOpacity(0.2), side: BorderSide(color: _themeColor)), onPressed: _nextStage, child: const Text("VERİYİ İŞLE", style: TextStyle(color: Colors.white))))); }
-  Widget _buildPuzzleMatrix() { return MissionCard(color: _themeColor, header: "GÜÇ KALİBRASYONU", story: "Sistemin voltaj dengesi bozulmuş. Mantığı çöz ve eksik değeri gir.", content: Column(children: [ Container(padding: const EdgeInsets.all(10), color: Colors.black, child: const Column(children: [Text("+5  -3  +2", style: TextStyle(color: Colors.white, fontSize: 18)), Divider(color: Colors.grey), Text("-8  +4  +1", style: TextStyle(color: Colors.white, fontSize: 18)), Divider(color: Colors.grey), Text("?   -2  +6", style: TextStyle(color: Colors.red, fontSize: 18))])), const SizedBox(height: 20), Wrap(spacing: 10, children: ["-2", "-4", "+4", "0"].map((e) => ElevatedButton(onPressed: () => e=="-4" ? _nextStage() : _showError("Voltaj Hatası"), child: Text(e))).toList())])); }
-  Widget _buildPuzzleWiring() { return MissionCard(color: Colors.greenAccent, header: "ANA SİSTEM BAĞLANTISI", story: "Tüm sistemler hazır. 'BAŞLAT' komutunu onaylamak için Mavi ve Kırmızı kabloyu aynı anda kes (Butona bas).", content: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [ ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.blue), onPressed: () => _showError("Tek başına olmaz!"), child: const Text("MAVİ")), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.white10), onPressed: () => _nextStage(), child: const Text("İKİSİ DE", style: TextStyle(color: Colors.white))), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.red), onPressed: () => _showError("Tek başına olmaz!"), child: const Text("KIRMIZI"))])); }
-  Widget _buildCardStep() { if (_currentCardQuestion == null) { return MissionCard(color: Colors.amber, header: AppTexts.get('card_alert_title', widget.language), story: AppTexts.get('card_instruction', widget.language), content: Column(children: [ TextField(controller: _cardInputCtrl, keyboardType: TextInputType.number, style: const TextStyle(color: Colors.white, fontSize: 24), textAlign: TextAlign.center, decoration: AppStyles.inputDecoration(AppTexts.get('card_input_hint', widget.language), Colors.amber)), const SizedBox(height: 15), SizedBox(width: double.infinity, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.amber), onPressed: () { int? id = int.tryParse(_cardInputCtrl.text); var q = QuestionData.getById(id ?? -1); if (q != null) { setState(() => _currentCardQuestion = q); } else { _showError(AppTexts.get('try_again', widget.language)); } }, child: Text(AppTexts.get('card_scan_btn', widget.language), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)))) ])); } else { return MissionCard(color: Colors.amber, header: "VERİ ÇÖZÜMLENDİ", story: "Doğru şıkkı seç:", content: Column(children: _currentCardQuestion!.options.entries.map((e) => Padding(padding: const EdgeInsets.only(bottom: 10), child: SizedBox(width: double.infinity, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.black, side: BorderSide(color: Colors.amber.withOpacity(0.5)), padding: const EdgeInsets.all(15)), onPressed: () => e.key == _currentCardQuestion!.correctOption ? _nextStage() : _showError(AppTexts.get('retry', widget.language)), child: Text("${e.key}) ${e.value}", style: const TextStyle(color: Colors.white)))))).toList())); } }
-  Widget _buildRiddle(String riddle, String correctText, int correctIndex) { List<String> options = []; if(correctIndex == 1) options = ["KAR (SNOW)", "BUZUL (GLACIER)", "RÜZGAR (WIND)", "AYI (BEAR)"]; if(correctIndex == 2) options = ["OKYANUS (OCEAN)", "GÖKYÜZÜ (SKY)", "BUZ MAĞARASI (ICE CAVE)", "AYNA (MIRROR)"]; return MissionCard(color: Colors.purpleAccent, header: "ŞİFRELİ MESAJ", story: riddle, content: Column(children: List.generate(options.length, (i) => Padding(padding: const EdgeInsets.only(bottom: 10), child: SizedBox(width: double.infinity, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.black, side: const BorderSide(color: Colors.purpleAccent), padding: const EdgeInsets.symmetric(vertical: 15)), onPressed: () => i == (options.contains(correctText) ? options.indexOf(correctText) : correctIndex) ? _nextStage() : _showError("Hatalı Çözüm"), child: Text(options[i], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))))))); }
+
+  Widget _buildLevel2Input() {
+    return Container(
+      width: 200,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.white24),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: TextField(
+        style: const TextStyle(color: Colors.white, fontFamily: 'Courier', fontSize: 20),
+        textAlign: TextAlign.center,
+        keyboardType: TextInputType.number,
+        decoration: const InputDecoration(
+          hintText: "?",
+          hintStyle: TextStyle(color: Colors.white24),
+          border: InputBorder.none,
+        ),
+        onSubmitted: checkAnswer,
+      ),
+    );
+  }
+}
+
+// --- CLASS 2: BASİT VANA BULMACASI ---
+class SimpleValve extends StatefulWidget {
+  final VoidCallback onUnlock;
+  const SimpleValve({super.key, required this.onUnlock});
+
+  @override
+  State<SimpleValve> createState() => _SimpleValveState();
+}
+
+class _SimpleValveState extends State<SimpleValve> {
+  double turns = 0.0;
+  bool isCorrect = false;
+
+  void _rotateValve() {
+    if (isCorrect) return;
+    setState(() {
+      turns += 0.25;
+      if (turns % 1.0 == 0) {
+        isCorrect = true;
+        Future.delayed(const Duration(milliseconds: 500), widget.onUnlock);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _rotateValve,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedRotation(
+            turns: turns,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.elasticOut,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isCorrect ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.1),
+                border: Border.all(color: isCorrect ? Colors.greenAccent : Colors.redAccent, width: 4),
+                boxShadow: [
+                  BoxShadow(color: isCorrect ? Colors.greenAccent.withOpacity(0.4) : Colors.redAccent.withOpacity(0.2), blurRadius: 30, spreadRadius: 5)
+                ]
+              ),
+              child: Icon(Icons.settings, size: 80, color: isCorrect ? Colors.green : Colors.red),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(isCorrect ? "BASINÇ NORMAL" : "VANAYI ÇEVİR", style: TextStyle(color: isCorrect ? Colors.greenAccent : Colors.redAccent, fontFamily: 'Courier', fontWeight: FontWeight.bold))
+        ],
+      ),
+    );
+  }
+}
+
+// --- CLASS 3: YIRTIK HARİTA OYUNU ---
+const Color kIceDark = Color(0xFF051015);
+const Color kIceCyan = Colors.cyanAccent;
+const Color kIceError = Colors.redAccent;
+
+class TornMapPuzzle extends StatefulWidget {
+  final VoidCallback onPuzzleSolved;
+  const TornMapPuzzle({super.key, required this.onPuzzleSolved});
+
+  @override
+  _TornMapPuzzleState createState() => _TornMapPuzzleState();
+}
+
+class _TornMapPuzzleState extends State<TornMapPuzzle> {
+  late List<int> loosePieces;
+  List<int?> gridState = List.filled(9, null);
+  bool isGameFinished = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loosePieces = List.generate(9, (index) => index);
+    loosePieces.shuffle();
+    WidgetsBinding.instance.addPostFrameCallback((_) { _showIntroDialog(); });
+  }
+
+  void _showIntroDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: kIceDark.withOpacity(0.95),
+        shape: RoundedRectangleBorder(side: const BorderSide(color: kIceError), borderRadius: BorderRadius.circular(15)),
+        title: const Row(children: [Icon(Icons.warning_amber_rounded, color: kIceError), SizedBox(width: 10), Text("SİSTEM HATASI", style: TextStyle(color: kIceError, fontFamily: 'Courier'))]),
+        content: const Text("Navigasyon cihazı sustu. Eski harita parçalarını birleştirmen lazım.", style: TextStyle(color: Colors.white70)),
+        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("BAŞLA >", style: TextStyle(color: kIceCyan)))],
+      ),
+    );
+  }
+
+  void _checkWinCondition() {
+    bool allCorrect = true;
+    for (int i = 0; i < 9; i++) {
+      if (gridState[i] != i) { allCorrect = false; break; }
+    }
+    if (allCorrect) {
+      setState(() => isGameFinished = true);
+      Future.delayed(const Duration(milliseconds: 500), widget.onPuzzleSolved);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, title: const Text("MANUEL HARİTA ONARIMI", style: TextStyle(color: Colors.white54, fontFamily: 'Courier'))),
+      body: Column(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Center(
+              child: Container(
+                width: 300, height: 300, padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(border: Border.all(color: isGameFinished ? kIceCyan : Colors.white24, width: 2), borderRadius: BorderRadius.circular(10)),
+                child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 2, mainAxisSpacing: 2),
+                  itemCount: 9,
+                  itemBuilder: (context, index) {
+                    return DragTarget<int>(
+                      onWillAccept: (data) => gridState[index] == null,
+                      onAccept: (data) {
+                        setState(() { gridState[index] = data; loosePieces.remove(data); });
+                        _checkWinCondition();
+                      },
+                      builder: (context, candidateData, rejectedData) {
+                        if (gridState[index] != null) return MapTile(index: gridState[index]!, isLocked: true);
+                        return Container(decoration: BoxDecoration(color: candidateData.isNotEmpty ? Colors.white10 : Colors.transparent, border: Border.all(color: Colors.white10)), child: const Icon(Icons.add, color: Colors.white10, size: 10));
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+          const Divider(color: Colors.white10),
+          Expanded(
+            flex: 2,
+            child: Container(
+              color: const Color(0xFF0A0A0A), padding: const EdgeInsets.all(20),
+              child: Wrap(
+                spacing: 15, runSpacing: 15, alignment: WrapAlignment.center,
+                children: loosePieces.map((pieceIndex) {
+                  return Draggable<int>(
+                    data: pieceIndex,
+                    feedback: Material(color: Colors.transparent, child: SizedBox(width: 80, height: 80, child: MapTile(index: pieceIndex, isLocked: false))),
+                    childWhenDragging: Opacity(opacity: 0.3, child: SizedBox(width: 80, height: 80, child: MapTile(index: pieceIndex, isLocked: false))),
+                    child: SizedBox(width: 80, height: 80, child: MapTile(index: pieceIndex, isLocked: false)),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MapTile extends StatelessWidget {
+  final int index;
+  final bool isLocked;
+  const MapTile({super.key, required this.index, this.isLocked = false});
+
+  @override
+  Widget build(BuildContext context) {
+    int row = index ~/ 3; int col = index % 3;
+    return Container(
+      decoration: BoxDecoration(color: const Color(0xFF0F172A), border: Border.all(color: isLocked ? kIceCyan.withOpacity(0.5) : Colors.white24), borderRadius: BorderRadius.circular(4)),
+      child: ClipRect(child: CustomPaint(painter: MapFragmentPainter(row, col))),
+    );
+  }
+}
+
+class MapFragmentPainter extends CustomPainter {
+  final int row;
+  final int col;
+  MapFragmentPainter(this.row, this.col);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.translate(-col * size.width, -row * size.height);
+    final totalSize = Size(size.width * 3, size.height * 3);
+    final paint = Paint()..style = PaintingStyle.stroke..strokeWidth = 3.0..color = kIceCyan;
+    final fillPaint = Paint()..style = PaintingStyle.fill..color = kIceCyan.withOpacity(0.2);
+
+    Path coastLine = Path();
+    coastLine.moveTo(totalSize.width * 0.2, 0);
+    coastLine.quadraticBezierTo(totalSize.width * 0.5, totalSize.height * 0.3, totalSize.width * 0.8, totalSize.height * 0.2);
+    coastLine.quadraticBezierTo(totalSize.width * 0.9, totalSize.height * 0.6, totalSize.width * 0.5, totalSize.height * 0.8);
+    coastLine.lineTo(totalSize.width * 0.2, totalSize.height * 0.9);
+    coastLine.close();
+
+    canvas.drawPath(coastLine, fillPaint);
+    canvas.drawPath(coastLine, paint);
+
+    final center = Offset(totalSize.width * 0.6, totalSize.height * 0.5);
+    final xPaint = Paint()..color = Colors.redAccent ..strokeWidth = 5 ..style = PaintingStyle.stroke;
+    canvas.drawLine(center - const Offset(20, 20), center + const Offset(20, 20), xPaint);
+    canvas.drawLine(center - const Offset(-20, 20), center + const Offset(-20, 20), xPaint);
+  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
