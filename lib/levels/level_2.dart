@@ -21,7 +21,7 @@ class _Level2State extends State<Level2> {
 
   // --- YENİ SIRALAMA BULMACASI DEĞİŞKENLERİ ---
   // Karışık liste
-  List<String> _layers = ["Sanayi Devrimi", "Volkanik Patlama (MÖ)", "Buzul Çağı", "Dinozorlar"];
+  final List<String> _layers = ["Sanayi Devrimi", "Volkanik Patlama (MÖ)", "Buzul Çağı", "Dinozorlar"];
   // Doğru cevap (Günümüzden Geçmişe)
   final List<String> _correctOrder = ["Sanayi Devrimi", "Volkanik Patlama (MÖ)", "Buzul Çağı", "Dinozorlar"]; 
 

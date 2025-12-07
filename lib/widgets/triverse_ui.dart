@@ -122,7 +122,7 @@ class TriverseScaffold extends StatelessWidget {
             children: [
                Icon(Icons.ac_unit, color: themeColor.withOpacity(0.7), size: 16),
                const SizedBox(height: 4),
-               Text(title, style: TextStyle(color: Colors.white, fontFamily: 'Courier', fontWeight: FontWeight.bold, letterSpacing: 2)),
+               Text(title, style: const TextStyle(color: Colors.white, fontFamily: 'Courier', fontWeight: FontWeight.bold, letterSpacing: 2)),
             ],
           ),
           Container(

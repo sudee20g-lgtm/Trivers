@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math; // Döndürme için gerekli
+// Döndürme için gerekli
 import '../utils/app_texts.dart';
 import '../utils/app_styles.dart';
 import '../utils/game_data.dart';
