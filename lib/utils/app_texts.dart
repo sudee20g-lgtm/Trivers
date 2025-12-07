@@ -7,107 +7,144 @@ class AppTexts {
   }
 
   static final Map<String, Map<String, String>> _localizedValues = {
-    // --- MEVCUT GENEL METİNLER (DEĞİŞTİRİLMEDİ) ---
+    // --- GENEL METİNLER ---
     'play': {'TR': 'OYNA', 'EN': 'PLAY'},
     'buy': {'TR': 'SATIN AL', 'EN': 'BUY'},
     'pause_msg': {'TR': 'Oyun molası veriliyor...', 'EN': 'Game paused...'},
     'start_link': {'TR': 'BAĞLANTIYI BAŞLAT', 'EN': 'INITIATE LINK'},
     'mission_select': {'TR': 'GÖREV SEÇİMİ (16 FAZ)', 'EN': 'MISSION SELECT'},
-    'zone_1_title': {'TR': 'BÖLGE 1: KUTUPLAR', 'EN': 'ZONE 1: POLES'},
-    'zone_2_title': {'TR': 'BÖLGE 2: OKYANUS', 'EN': 'ZONE 2: OCEAN'},
-    'zone_3_title': {'TR': 'BÖLGE 3: UZAY', 'EN': 'ZONE 3: SPACE'},
-    'zone_4_title': {'TR': 'BÖLGE 4: NEXUS', 'EN': 'ZONE 4: NEXUS'},
+    
+    // FAZ İSİMLERİ (GÜNCELLENDİ)
+    'zone_1_title': {'TR': 'FAZ 1: BUZULLAR', 'EN': 'PHASE 1: GLACIERS'},
+    'zone_2_title': {'TR': 'FAZ 2: OKYANUS', 'EN': 'PHASE 2: OCEAN'}, // Gelecek
+    'zone_3_title': {'TR': 'FAZ 3: UZAY', 'EN': 'PHASE 3: SPACE'},   // Gelecek
+    'zone_4_title': {'TR': 'FAZ 4: KAOS', 'EN': 'PHASE 4: CHAOS'},   // Gelecek
+
     'locked_msg': {'TR': 'Önceki seviyeyi tamamla!', 'EN': 'Complete previous level!'},
     'check': {'TR': 'KONTROL ET', 'EN': 'CHECK'},
     'retry': {'TR': 'HATALI! Tekrar Dene', 'EN': 'ERROR! Retry'},
+    'try_again': {'TR': 'HATALI KOD / SEÇİM', 'EN': 'INVALID CODE / SELECTION'},
     'success': {'TR': 'BAŞARILI', 'EN': 'SUCCESS'},
     'continue': {'TR': 'DEVAM ET', 'EN': 'CONTINUE'},
     'stage_prefix': {'TR': 'AŞAMA', 'EN': 'STAGE'},
 
-    // --- YENİ EKLENEN/GÜNCELLENEN HİKAYE METİNLERİ ---
-    
-    // GİRİŞ HİKAYESİ (YENİ SENARYO)
+    // --- GİRİŞ HİKAYESİ ---
     'intro_story': {
       'TR': "> GÜVENLİ HAT KURULUYOR...\n> YIL: 2084\n\nKutuplardaki araştırma istasyonumuzdan gelen sinyal kesildi.\nSon veriler, buzun altında devasa bir enerji dalgalanması gösteriyor.\n\nBu bir kurtarma görevi değil. Bu bir keşif görevi.\n\nBuzun altındaki 'Şey' uyanıyor.\nOkyanusun derinliklerinden fısıltılar geliyor.\n\nGörevin: İstasyonu aç. Yaratığı analiz et. Zihnini koru.\n\n> SİSTEM HAZIR.",
       'EN': "> SECURE LINE ESTABLISHED...\n> YEAR: 2084\n\nSignal lost from the Polar Research Station.\nLast data shows massive energy fluctuations beneath the ice.\n\nThis is not a rescue mission. This is a discovery mission.\n\nThe 'Thing' beneath the ice is waking up.\nWhispers are rising from the ocean depths.\n\nYour mission: Power the station. Analyze the creature. Protect your mind.\n\n> SYSTEM READY."
     },
 
-    // FİZİKİ KART SİSTEMİ (EKLENDİ)
+    // --- FİZİKİ KART SİSTEMİ ---
     'card_alert_title': {'TR': 'FİZİKİ KART GEREKLİ', 'EN': 'PHYSICAL CARD REQUIRED'},
-    'card_alert_desc': {
-      'TR': 'Oyuna devam etmek için gerçek dünyadaki bilgi kartını kullanmalısın.',
-      'EN': 'You must use the physical info card in the real world to proceed.'
+    'card_instruction': {
+      'TR': 'Oyuna devam etmek için gerçek dünyadaki bilgi kartını kullanmalısın. Kartı çek, numarayı gir.',
+      'EN': 'You must use the physical info card in the real world. Draw card, enter ID.'
     },
     'card_btn_read': {'TR': 'KARTI OKUDUM', 'EN': 'I HAVE READ THE CARD'},
     'card_wrong': {'TR': 'Yanlış Bilgi! Kartı tekrar oku.', 'EN': 'Wrong Info! Read card again.'},
+    'card_input_hint': {'TR': 'KART NO (Örn: 5)', 'EN': 'CARD ID (Ex: 5)'},
+    'card_scan_btn': {'TR': 'VERİLERİ GETİR', 'EN': 'FETCH DATA'},
 
-    // KART 1 (İstasyon)
-    'c1_name': {'TR': 'KART #1: KARIN GÜCÜ', 'EN': 'CARD #1: POWER OF SNOW'},
-    'c1_q': {'TR': 'Fırtına çıktı! Donmak üzeresin. Karttaki bilgiye göre ne yapmalısın?', 'EN': 'Storm hits! Freezing. Based on the card, what should you do?'},
-    'c1_a': {'TR': 'Koşarak ısın', 'EN': 'Run to warm up'},
-    'c1_b': {'TR': 'Kar çukuru kaz', 'EN': 'Dig snow hole'},
+    // ============================================================
+    // LEVEL 1: İSTASYON (MEVCUT KORUNDU)
+    // ============================================================
+    'l1_title': {'TR': 'BÖLÜM 1: İSTASYON', 'EN': 'LEVEL 1: STATION'},
+    'l1_s1_header': {'TR': 'SİNYAL TESPİT EDİLDİ', 'EN': 'SIGNAL DETECTED'}, 
+    // Diğer L1 metinleri hardcoded olabilir, ancak buraya eklenmesi gerekenler varsa eklenir.
 
-    // KART 2 (Buzul/Yaratık)
-    'c2_name': {'TR': 'KART #2: BEYAZ KARANLIK', 'EN': 'CARD #2: WHITEOUT'},
-    'c2_q': {'TR': 'Her yer bembeyaz (Whiteout). Yaratığın izini sürmek için neye güvenmelisin?', 'EN': 'Whiteout conditions. How to track the creature?'},
-    'c2_a': {'TR': 'Siyah obje at', 'EN': 'Throw dark object'},
-    'c2_b': {'TR': 'Gözlerine güven', 'EN': 'Trust your eyes'},
-
-    // KART 3 (Okyanus)
-    'c3_name': {'TR': 'KART #3: AVCI BARINAĞI', 'EN': 'CARD #3: HUNTER SHELTER'},
-    'c3_q': {'TR': 'Eski bir et deposu buldun. Çok açsın. Hangi eti YEMEMELİSİN?', 'EN': 'Found old meat stash. Starving. Which meat MUST you avoid?'},
-    'c3_a': {'TR': 'Kas Eti', 'EN': 'Muscle Meat'},
-    'c3_b': {'TR': 'Ayı Ciğeri', 'EN': 'Bear Liver'},
-
-    // KART 4 (Zihin)
-    'c4_name': {'TR': 'KART #4: ALBEDO ETKİSİ', 'EN': 'CARD #4: ALBEDO EFFECT'},
-    'c4_q': {'TR': 'Zemin çöküyor. Karşıya geçmek için hangi zemine basmalısın?', 'EN': 'Ground collapsing. Which surface is safer to step on?'},
-    'c4_a': {'TR': 'Koyu Mavi Buz', 'EN': 'Dark Blue Ice'},
-    'c4_b': {'TR': 'Beyaz Karlı Buz', 'EN': 'White Snowy Ice'},
-
-    // --- LEVEL 1: İSTASYON (HİKAYE GÜNCELLENDİ) ---
-    'l1_title': {'TR': 'SEVİYE 1: ISI DENGESİ', 'EN': 'LEVEL 1: HEAT BALANCE'},
-    'l1_s1_story': {'TR': "İstasyon Kapısı Kilitli (-60°C).\nEnerji akışını dengele (Net: 0) ve içeri gir.", 'EN': "Station Door Locked (-60°C).\nBalance energy flow (Net: 0) to enter."},
-    'l1_s1_task': {'TR': 'SORU İŞARETİ (?) KAÇ OLMALI?', 'EN': 'VALUE OF (?)?'},
-    'l1_s2_story': {'TR': "Sesli doğrulama isteniyor.\nBu bilmecenin cevabı nedir?", 'EN': "Voice auth required.\nWhat is the answer?"},
-    'l1_s2_riddle': {'TR': "\"Kanadım yok uçarım. Gözüm yok ağlarım.\nKaranlık beni takip eder.\nBen neyim?\"", 'EN': "\"I fly without wings. I cry without eyes.\nDarkness follows me.\nWhat am I?\""},
-    'l1_s2_opt1': {'TR': 'RÜZGAR', 'EN': 'WIND'},
-    'l1_s2_opt2': {'TR': 'BULUT', 'EN': 'CLOUD'},
-    'l1_s2_opt3': {'TR': 'UÇAK', 'EN': 'PLANE'},
-    'l1_s3_story': {'TR': "Basınç arttı! Valfleri ASAL SAYI sırasına göre aç.", 'EN': "Pressure rising! Open valves in PRIME NUMBER order."},
-    'l1_reward': {'TR': 'İstasyon Aktif.\nSensörler Buzun Altında Anomali Tespit Etti.', 'EN': 'Station Online.\nSensors Detected Anomaly Beneath Ice.'},
-
-    // --- LEVEL 2: BUZULLAR (HİKAYE GÜNCELLENDİ - YARATIK) ---
-    'l2_title': {'TR': 'SEVİYE 2: DERİN BUZ', 'EN': 'LEVEL 2: DEEP ICE'},
+    // ============================================================
+    // LEVEL 2: BIOLAB (MEVCUT KORUNDU)
+    // ============================================================
+    'l2_title': {'TR': 'BÖLÜM 2: BIOLAB', 'EN': 'LEVEL 2: BIOLAB'},
+    'l2_s1_header': {'TR': 'KATMAN ANALİZİ', 'EN': 'LAYER ANALYSIS'},
     'l2_s1_story': {'TR': "Buzulun içindeki katmanları analiz et.\nYENİDEN ESKİYE doğru sırala.", 'EN': "Analyze layers within the glacier.\nOrder from NEW to OLD."},
-    'l2_optA': {'TR': 'A: Sanayi Devrimi', 'EN': 'A: Industrial Rev.'},
-    'l2_optB': {'TR': 'B: Toba Volkanı', 'EN': 'B: Toba Volcano'},
-    'l2_optC': {'TR': 'C: Buzul Çağı', 'EN': 'C: Ice Age'},
-    'l2_optD': {'TR': 'D: Nükleer Test', 'EN': 'D: Nuclear Test'},
-    'l2_s2_story': {'TR': "YARATIK DNA'SI BULUNDU.\nEksik baz çiftini tamamla.\n(Guanin - Sitozin, Adenin - Timin)", 'EN': "CREATURE DNA FOUND.\nComplete the base pair.\n(Guanine - Cytosine, Adenine - Thymine)"},
-    'l2_s2_q': {'TR': 'G - C - A - ?', 'EN': 'G - C - A - ?'},
-    'l2_s2_opt1': {'TR': 'G (Guanin)', 'EN': 'G (Guanine)'},
-    'l2_s2_opt2': {'TR': 'T (Timin)', 'EN': 'T (Thymine)'},
-    'l2_s3_story': {'TR': "Yaratığın vücut ısısı artıyor. Buz eriyor.\nDakikada 5cm eriyorsa, 300cm buz kaç dakikada erir?", 'EN': "Creature body heat rising. Ice melting.\nIf 5cm melts/min, how long for 300cm?"},
-    'l2_s3_input': {'TR': 'DAKİKAYI GİR', 'EN': 'ENTER MINUTES'},
-    'l2_reward': {'TR': 'Canlı Türü: BİLİNMEYEN.\nSinyal Okyanusu Gösteriyor.', 'EN': 'Species: UNKNOWN.\nSignal Points to Ocean.'},
+    'l2_btn_process': {'TR': 'ANALİZİ BAŞLAT', 'EN': 'START ANALYSIS'},
 
-    // --- LEVEL 3: OKYANUS (HİKAYE GÜNCELLENDİ - HADES) ---
-    'l3_title': {'TR': 'SEVİYE 3: HADES KAPISI', 'EN': 'LEVEL 3: HADES GATE'},
-    'l3_s1_story': {'TR': "Manyetik alan bozuldu. Pusula +5 derece saptı.\nŞifreyi bu sapmaya göre çöz: J-K-N-G-T", 'EN': "Magnetic field corrupted. Compass +5 deviation.\nDecode based on deviation: J-K-N-G-T"},
-    'l3_s2_story': {'TR': "Derinlerden bir sinyal geliyor.\n... --- ... (Mors Rehberini kullan)", 'EN': "Signal from the deep.\n... --- ... (Use Morse Guide)"},
-    'l3_s3_story': {'TR': "Kapı Şifresi İsteniyor.\nYaratığın kod adı neydi? (Yunan Yeraltı Tanrısı)", 'EN': "Gate Password Required.\nCreature's codename? (Greek God of Underworld)" },
-    'l3_reward': {'TR': 'HADES UYANDI.\nZihin Kontrolü Kaybediliyor...', 'EN': 'HADES AWAKENED.\nLosing Mind Control...'},
+    'l2_p1_header': {'TR': 'DNA SARMALI', 'EN': 'DNA HELIX'},
+    'l2_p1_story': {'TR': "YARATIK DNA'SI BULUNDU.\nEksik baz çiftini tamamla.\n(Guanin - Sitozin, Adenin - Timin)\nDizi: G - C - A - ?", 'EN': "CREATURE DNA FOUND.\nComplete the base pair.\n(Guanine - Cytosine, Adenine - Thymine)\nSeq: G - C - A - ?"},
 
-    // --- LEVEL 4: ZİHİN (HİKAYE GÜNCELLENDİ - FİNAL) ---
-    'l4_title': {'TR': 'SEVİYE 4: ZİHİN KIRILMASI', 'EN': 'LEVEL 4: MIND FRACTURE'},
-    'l4_s1_story': {'TR': "Gerçeklik parçalanıyor.\nKoordinatları birleştir (C7, D6, E5).\nÇıkış yolu hangi yıldızda?", 'EN': "Reality fracturing.\nConnect coordinates (C7, D6, E5).\nWhich star is the exit?"},
-    'l4_task': {'TR': 'SABİT NOKTAYI SEÇ', 'EN': 'SELECT FIXED POINT'},
-    'l4_s2_story': {'TR': "Halüsinasyon görüyorsun. İlaç karışımı yap.\nHidrojen (1) ve Oksijen (8) oranı nedir?", 'EN': "Hallucinating. Mix the antidote.\nRatio of Hydrogen (1) to Oxygen (8)?"},
-    'l4_s2_opt1': {'TR': '1:8', 'EN': '1:8'},
-    'l4_s2_opt2': {'TR': '2:1', 'EN': '2:1'},
-    'l4_s3_story': {'TR': "ZİHNİN SANA OYUN OYNUYOR.\n'MAVİ' yazısına basma. 'KIRMIZI'ya basma. \nSadece YEŞİL renkli kutuya güven.", 'EN': "YOUR MIND IS PLAYING TRICKS.\nDon't press 'BLUE'. Don't press 'RED'.\nTrust only the GREEN box."},
-    'l4_reward': {'TR': "SENKRONİZASYON TAMAMLANDI.\nTriverse Simülasyonu Sona Erdi.", 'EN': "SYNCHRONIZATION COMPLETE.\nTriverse Simulation Ended."},
+    'l2_c1_header': {'TR': 'BİYOLOJİK ÖRNEK', 'EN': 'BIOLOGICAL SAMPLE'},
+    'l2_c1_story': {'TR': 'Bulunan doku örneğini analiz etmek için Biyoloji Kartını tarat.', 'EN': 'Scan the Biology Card to analyze the tissue sample.'},
+
+    // L2 - Riddle 1
+    'l2_r1_header': {'TR': 'TARİHSEL KATMANLAR', 'EN': 'HISTORICAL LAYERS'},
+    'l2_r1_story': {'TR': 'Hangi sıralama günümüzden geçmişe doğrudur?', 'EN': 'Which order is from present to past?'},
+    'l2_r1_opt1': {'TR': 'Buzul Çağı > Sanayi Devrimi', 'EN': 'Ice Age > Industrial Rev.'},
+    'l2_r1_opt2': {'TR': 'Sanayi Devrimi > Buzul Çağı', 'EN': 'Industrial Rev. > Ice Age'},
+    'l2_r1_opt3': {'TR': 'Volkan Patlaması > Nükleer Test', 'EN': 'Volcano > Nuclear Test'},
+    'l2_r1_opt4': {'TR': 'Dinozorlar > Romalılar', 'EN': 'Dinosaurs > Romans'},
+
+    // L2 - Puzzle 2
+    'l2_p2_header': {'TR': 'ERİME HIZI', 'EN': 'MELT RATE'},
+    'l2_p2_story': {'TR': "Yaratığın vücut ısısı artıyor. Buz eriyor.\nDakikada 5cm eriyorsa, 300cm buz kaç dakikada erir?", 'EN': "Creature body heat rising. Ice melting.\nIf 5cm melts/min, how long for 300cm?"},
+    // Cevap "60" hardcoded kontrol ediliyor, şıklar yok.
+
+    // L2 - Riddle 2
+    'l2_r2_header': {'TR': 'HÜCRE YAPISI', 'EN': 'CELL STRUCTURE'},
+    'l2_r2_story': {'TR': 'Bu yaratığın hücre duvarı yok ama donmuyor. Hangi madde buna sebep olur?', 'EN': 'No cell wall but doesn\'t freeze. Which substance causes this?'},
+    'l2_r2_opt1': {'TR': 'Su', 'EN': 'Water'},
+    'l2_r2_opt2': {'TR': 'Antifriz Proteini', 'EN': 'Antifreeze Protein'},
+    'l2_r2_opt3': {'TR': 'Tuz', 'EN': 'Salt'},
+    'l2_r2_opt4': {'TR': 'Demir', 'EN': 'Iron'},
+
+    // L2 - Puzzle 3
+    'l2_p3_header': {'TR': 'SİSTEM HATASI', 'EN': 'SYSTEM FAILURE'},
+    'l2_p3_story': {'TR': 'Analiz tamamlanamıyor. Biyolojik tehlike seviyesi nedir?', 'EN': 'Analysis incomplete. What is the biohazard level?'},
+    'l2_p3_opt1': {'TR': 'SEVİYE 5 (Kıyamet)', 'EN': 'LEVEL 5 (Doomsday)'},
+    'l2_p3_opt2': {'TR': 'SEVİYE 1 (Düşük)', 'EN': 'LEVEL 1 (Low)'},
+    'l2_p3_opt3': {'TR': 'GÜVENLİ', 'EN': 'SAFE'},
+
+
+    // ============================================================
+    // LEVEL 3: DERİN ÇATLAK (TAMAMEN YENİLENDİ - BUZULLAR FAZ 2)
+    // ============================================================
+    'l3_title': {'TR': 'BÖLÜM 3: DERİN ÇATLAK', 'EN': 'LEVEL 3: THE CREVASSE'},
+    'l3_s1_header': {'TR': 'DÜŞÜŞ BAŞLIYOR', 'EN': 'DESCENT BEGINS'},
+    'l3_s1_story': {'TR': 'İstasyonun altındaki zemin çöktü. 500 metre aşağıdaki antik bir mağaraya indik. Burası milyonlarca yıldır mühürlüydü. Duvarlarda donmuş devasa gölgeler var.', 'EN': 'Ice floor collapsed. We fell 500m into an ancient cave. Sealed for millions of years. Frozen shadows on walls.'},
+    
+    // L3 - Riddle 1
+    'l3_r1_header': {'TR': 'DONMA RİSKİ', 'EN': 'FREEZE RISK'},
+    'l3_r1_story': {'TR': 'Vücut ısımız düşüyor. Hipotermi belirtisi OLMAYAN hangisidir?', 'EN': 'Body temp dropping. Which is NOT a sign of hypothermia?'},
+    'l3_r1_opt1': {'TR': 'Titreme', 'EN': 'Shivering'},
+    'l3_r1_opt2': {'TR': 'Aşırı Terleme', 'EN': 'Excessive Sweating'},
+    'l3_r1_opt3': {'TR': 'Zihin Bulanıklığı', 'EN': 'Confusion'},
+    'l3_r1_opt4': {'TR': 'Uyuşukluk', 'EN': 'Drowsiness'},
+
+    // L3 - Riddle 2
+    'l3_r2_header': {'TR': 'BUZUL TARİHİ', 'EN': 'GLACIAL HISTORY'},
+    'l3_r2_story': {'TR': 'Bu mağara "Kriyojenik" dönemden kalma. Bu terim ne anlama gelir?', 'EN': 'Cave is from "Cryogenic" era. What does it mean?'},
+    'l3_r2_opt1': {'TR': 'Ateş Üretimi', 'EN': 'Fire Production'},
+    'l3_r2_opt2': {'TR': 'Çok Düşük Sıcaklık', 'EN': 'Very Low Temperature'},
+    'l3_r2_opt3': {'TR': 'Yüksek Basınç', 'EN': 'High Pressure'},
+    'l3_r2_opt4': {'TR': 'Radyasyon', 'EN': 'Radiation'},
+
+
+    // ============================================================
+    // LEVEL 4: ÇEKİRDEK (TAMAMEN YENİLENDİ - BUZULLAR FAZ 3/FINAL)
+    // ============================================================
+    'l4_title': {'TR': 'BÖLÜM 4: ÇEKİRDEK', 'EN': 'LEVEL 4: THE CORE'},
+    'l4_s1_header': {'TR': 'ISINAN BUZ', 'EN': 'WARMING ICE'},
+    'l4_s1_story': {'TR': 'Mağaranın en dibindeyiz. Burada fizik kuralları işlemiyor. Dışarısı -60 dereceyken, burası +25 derece. Buzun içinde devasa, atan bir biyolojik yapı var.', 'EN': 'Bottom of the cave. Physics is broken here. Outside -60C, here +25C. A massive, beating biological structure inside the ice.'},
+
+    // L4 - Riddle 1
+    'l4_r1_header': {'TR': 'ANOMALİ', 'EN': 'ANOMALY'},
+    'l4_r1_story': {'TR': 'Buzulun altında sıvı su gölü bulundu. Buna ne ad verilir?', 'EN': 'Liquid lake found under glacier. What is it called?'},
+    'l4_r1_opt1': {'TR': 'Subglasiyal Göl', 'EN': 'Subglacial Lake'}, // Doğru
+    'l4_r1_opt2': {'TR': 'Gayzer', 'EN': 'Geyser'},
+    'l4_r1_opt3': {'TR': 'Fjord', 'EN': 'Fjord'},
+    'l4_r1_opt4': {'TR': 'Tundra', 'EN': 'Tundra'},
+
+    // L4 - Riddle 2
+    'l4_r2_header': {'TR': 'YENİ TÜR', 'EN': 'NEW SPECIES'},
+    'l4_r2_story': {'TR': 'Organizma ışıksız ortamda enerji üretiyor. Bu sürece ne denir?', 'EN': 'Organism makes energy without light. What is this process?'},
+    'l4_r2_opt1': {'TR': 'Fotosentez', 'EN': 'Photosynthesis'},
+    'l4_r2_opt2': {'TR': 'Kemosentez', 'EN': 'Chemosynthesis'}, // Doğru
+    'l4_r2_opt3': {'TR': 'Elektroliz', 'EN': 'Electrolysis'},
+    'l4_r2_opt4': {'TR': 'Osmoz', 'EN': 'Osmosis'},
+    
+    // KOORDİNAT SİSTEMİ
+    'coord_reward': {'TR': 'KOORDİNAT PARÇASI AÇILDI: [X: 14 - Y: 88]', 'EN': 'COORDINATE UNLOCKED: [X: 14 - Y: 88]'},
+    'lyra_hint': {'TR': 'Bu koordinatı fiziksel haritana işle.', 'EN': 'Mark this on your physical map.'},
 
     // --- SATIN ALMA (MEVCUT) ---
     'sale_text': {'TR': '%37 İNDİRİM!', 'EN': '37% SALE!'},

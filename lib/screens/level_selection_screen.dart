@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/app_texts.dart';
-import '../utils/game_data.dart'; // Kilit sistemi
+import '../utils/game_data.dart';
 import '../levels/level_1.dart';
 import '../levels/level_2.dart';
 import '../levels/level_3.dart';
@@ -21,7 +21,6 @@ class LevelSelectionScreen extends StatefulWidget {
 }
 
 class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
-  // Ekrana geri dönüldüğünde kilidin açıldığını görmek için yenileme
   void _refresh() {
     setState(() {});
   }
@@ -60,9 +59,8 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
         child: ListView.builder(
           padding: const EdgeInsets.only(bottom: 50),
           itemCount: 4,
-          itemBuilder: (context, zoneIndex) {
-            return _buildZoneSection(context, zoneIndex);
-          },
+          itemBuilder: (context, zoneIndex) =>
+              _buildZoneSection(context, zoneIndex),
         ),
       ),
     );
@@ -70,33 +68,22 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
 
   Widget _buildZoneSection(BuildContext context, int zoneIndex) {
     String titleKey = 'zone_${zoneIndex + 1}_title';
-    String title = AppTexts.get(titleKey, widget.language);
-
-    Color zoneColor;
-    switch (zoneIndex) {
-      case 0:
-        zoneColor = Colors.cyanAccent;
-        break;
-      case 1:
-        zoneColor = Colors.blueAccent;
-        break;
-      case 2:
-        zoneColor = Colors.purpleAccent;
-        break;
-      case 3:
-        zoneColor = Colors.redAccent;
-        break;
-      default:
-        zoneColor = Colors.white;
-    }
+    // Zone renklerini listeye aldık
+    List<Color> zoneColors = [
+      Colors.cyanAccent,
+      Colors.blueAccent,
+      Colors.purpleAccent,
+      Colors.redAccent
+    ];
+    Color zoneColor = zoneColors[zoneIndex];
 
     return Container(
       margin: const EdgeInsets.all(15),
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.black54,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: zoneColor.withValues(alpha: 0.5), width: 1),
+        border: Border.all(color: zoneColor.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(color: zoneColor.withValues(alpha: 0.1), blurRadius: 10)
         ],
@@ -104,32 +91,24 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-            child: Text(
-              title,
+          Text(AppTexts.get(titleKey, widget.language),
               style: TextStyle(
                   color: zoneColor,
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.5,
-                  shadows: [Shadow(color: zoneColor, blurRadius: 10)]),
-            ),
-          ),
+                  shadows: [Shadow(color: zoneColor, blurRadius: 10)])),
+          const SizedBox(height: 15),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 15),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              crossAxisSpacing: 15,
-              mainAxisSpacing: 15,
-            ),
+                crossAxisCount: 4,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10),
             itemCount: 4,
             itemBuilder: (context, index) {
               int globalLevel = (zoneIndex * 4) + index + 1;
-
-              // KİLİT MANTIĞI: GameData'dan kontrol et
               bool isUnlocked = globalLevel <= GameData.highestUnlockedLevel;
 
               return GestureDetector(
@@ -141,33 +120,26 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
                                 AppTexts.get('locked_msg', widget.language)),
                             backgroundColor: Colors.red));
                       },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
+                child: Container(
                   decoration: BoxDecoration(
-                      color: isUnlocked
-                          ? zoneColor.withValues(alpha: 0.2)
-                          : Colors.grey[900],
-                      border: Border.all(
-                          color: isUnlocked
-                              ? zoneColor
-                              : Colors.grey.withOpacity(0.3)),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: isUnlocked
-                          ? [
-                              BoxShadow(
-                                  color: zoneColor.withValues(alpha: 0.4),
-                                  blurRadius: 8)
-                            ]
-                          : []),
-                  child: Center(
-                    child: isUnlocked
-                        ? Text("$globalLevel",
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold))
-                        : const Icon(Icons.lock, color: Colors.grey, size: 20),
+                    color: isUnlocked
+                        ? zoneColor.withValues(alpha: 0.2)
+                        : Colors.grey[900],
+                    border: Border.all(
+                        color: isUnlocked
+                            ? zoneColor
+                            : Colors.grey.withValues(alpha: 0.3)),
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  child: Center(
+                      child: isUnlocked
+                          ? Text("$globalLevel",
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold))
+                          : const Icon(Icons.lock,
+                              color: Colors.grey, size: 20)),
                 ),
               );
             },
@@ -179,6 +151,8 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
 
   void _openLevel(BuildContext context, int level) async {
     Widget nextScreen;
+
+    // MANUEL GEÇİŞ SİSTEMİ
     switch (level) {
       case 1:
         nextScreen = Level1(language: widget.language);
@@ -192,13 +166,19 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
       case 4:
         nextScreen = Level4(language: widget.language);
         break;
+      // Yeni Leveller eklendikçe burası açılacak:
+      // case 7: nextScreen = Level7(language: widget.language); break;
+      // case 8: nextScreen = Level8(language: widget.language); break;
       default:
+        // Eğer level dosyası yoksa işlem yapma
         return;
     }
 
-    // Bölüme git ve geri gelmesini bekle (Geri gelince kilitleri güncellemek için)
+    // nextScreen kesinlikle atandı, güvenle gidebiliriz
     await Navigator.push(
-        context, MaterialPageRoute(builder: (_) => nextScreen));
-    _refresh(); // Sayfayı yenile ki yeni açılan kilit görünsün
+      context,
+      MaterialPageRoute(builder: (_) => nextScreen),
+    );
+    _refresh();
   }
 }

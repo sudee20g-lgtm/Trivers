@@ -1,4 +1,39 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
+import '../utils/app_styles.dart';
+
+// --- BUZUL / KRİSTAL EFEKTLİ KUTU DEKORASYONU ---
+BoxDecoration iceCrystalDecoration({Color color = Colors.cyanAccent, bool isFocused = false}) {
+  return BoxDecoration(
+    color: const Color(0xFF051015).withOpacity(0.85), // Koyu buz mavisi zemin
+    border: Border.all(
+      color: isFocused ? Colors.white : color.withOpacity(0.6), // Odaklanınca beyaz parlar
+      width: isFocused ? 2 : 1.5
+    ),
+    // Keskin köşeler (Kristal hissi için radius düşük)
+    borderRadius: const BorderRadius.only(
+      topLeft: Radius.circular(15),
+      bottomRight: Radius.circular(15),
+      topRight: Radius.circular(2), // Keskin
+      bottomLeft: Radius.circular(2), // Keskin
+    ),
+    boxShadow: [
+      // İçten dışa doğru soğuk bir parlama
+      BoxShadow(color: color.withOpacity(0.15), blurRadius: 15, spreadRadius: 2),
+      if (isFocused) BoxShadow(color: Colors.white.withOpacity(0.3), blurRadius: 20, spreadRadius: 1),
+    ],
+    gradient: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        color.withOpacity(0.1),
+        Colors.transparent,
+        color.withOpacity(0.05),
+      ],
+      stops: const [0.0, 0.5, 1.0],
+    ),
+  );
+}
 
 class TriverseScaffold extends StatelessWidget {
   final String title;
@@ -19,50 +54,52 @@ class TriverseScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF050505),
-      resizeToAvoidBottomInset: true, 
+      backgroundColor: const Color(0xFF020205), // Zifiri karanlık
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          // 1. KATMAN: Arkaplan
+          // 1. Arkaplan: Soğuk Gradyan
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
                 gradient: RadialGradient(
-                  center: Alignment.topLeft,
-                  radius: 1.5,
+                  center: const Alignment(0, -0.2),
+                  radius: 1.3,
                   colors: [
-                    themeColor.withValues(alpha: 0.15),
-                    Colors.black,
+                    themeColor.withOpacity(0.15),
+                    const Color(0xFF000000),
                   ],
                 ),
               ),
             ),
           ),
-          
-          // 2. KATMAN: Izgara Deseni
+          // 2. Buzlanma Efekti (Vignette)
           Positioned.fill(
-            child: Opacity(
-              opacity: 0.05,
-              child: Image.network(
-                "https://www.transparenttextures.com/patterns/graphy.png", 
-                repeat: ImageRepeat.repeat,
-                errorBuilder: (c, o, s) => Container(),
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: themeColor.withOpacity(0.1), width: 0),
+                  gradient: RadialGradient(
+                    center: Alignment.center,
+                    radius: 0.9,
+                    colors: [Colors.transparent, themeColor.withOpacity(0.2)],
+                    stops: const [0.6, 1.0],
+                  ),
+                ),
               ),
             ),
           ),
-
-          // 3. KATMAN: Ana İçerik
+          
           SafeArea(
             child: Column(
               children: [
                 _buildTopBar(context),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                     child: child, 
                   ),
                 ),
-                _buildBottomStatus(),
               ],
             ),
           ),
@@ -73,89 +110,42 @@ class TriverseScaffold extends StatelessWidget {
 
   Widget _buildTopBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: themeColor.withValues(alpha: 0.3))),
-        color: Colors.black.withValues(alpha: 0.5),
-      ),
+      padding: const EdgeInsets.all(15),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // 1. Geri Butonu
           IconButton(
             icon: Icon(Icons.arrow_back_ios_new, color: themeColor),
             onPressed: onBack ?? () => Navigator.pop(context),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
           ),
-          const SizedBox(width: 10),
-          
-          // 2. Başlık Alanı (ESNEK - Taşmayı önler)
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("TRIVERSE OS v4.2", 
-                  maxLines: 1, 
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 10, letterSpacing: 1.5, fontFamily: 'Courier')),
-                Text(title.toUpperCase(), 
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Courier')),
-              ],
-            ),
+          Column(
+            children: [
+               Icon(Icons.ac_unit, color: themeColor.withOpacity(0.7), size: 16),
+               const SizedBox(height: 4),
+               Text(title, style: TextStyle(color: Colors.white, fontFamily: 'Courier', fontWeight: FontWeight.bold, letterSpacing: 2)),
+            ],
           ),
-
-          const SizedBox(width: 10),
-
-          // 3. Level Rozeti (Esnek)
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-              decoration: BoxDecoration(
-                color: themeColor.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: themeColor.withValues(alpha: 0.5))
-              ),
-              child: Text(levelName, 
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: themeColor, fontWeight: FontWeight.bold, fontSize: 11)),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              border: Border.all(color: themeColor.withOpacity(0.5)),
+              borderRadius: BorderRadius.circular(5)
             ),
+            child: Text(levelName, style: TextStyle(color: themeColor, fontSize: 10, fontWeight: FontWeight.bold)),
           )
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomStatus() {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      color: Colors.black,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.wifi_tethering, color: themeColor, size: 14),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text("CONNECTION: STABLE  |  TEMP: -40°C",
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: themeColor.withValues(alpha: 0.7), fontSize: 10, fontFamily: 'Courier')),
-          ),
         ],
       ),
     );
   }
 }
 
-// --- OYUN KARTI (Mission Card) ---
+// --- YENİLENEN MISSION CARD (KRİSTAL GÖRÜNÜM) ---
 class MissionCard extends StatelessWidget {
   final String header;
   final String story;
   final Widget content; 
-  final Widget? footerInfo; 
   final Color color;
+  final bool isLog; 
 
   const MissionCard({
     super.key,
@@ -163,43 +153,35 @@ class MissionCard extends StatelessWidget {
     required this.story,
     required this.content,
     required this.color,
-    this.footerInfo,
+    this.isLog = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xFF111111).withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: color.withValues(alpha: 0.5), width: 1.5),
-        boxShadow: [
-          BoxShadow(color: color.withValues(alpha: 0.15), blurRadius: 20, spreadRadius: 0),
-        ]
-      ),
+      decoration: iceCrystalDecoration(color: color),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), bottomRight: Radius.circular(15)),
         child: SingleChildScrollView( 
           physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Kart Başlığı
+              // Başlık Alanı (Buzlu Cam)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
-                  border: Border(bottom: BorderSide(color: color.withValues(alpha: 0.3))),
+                  color: color.withOpacity(0.15),
+                  border: Border(bottom: BorderSide(color: color.withOpacity(0.3))),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.article_outlined, color: color, size: 18),
+                    Icon(isLog ? Icons.record_voice_over : Icons.memory, color: color, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(header, 
-                        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontFamily: 'Courier', letterSpacing: 1),
-                        overflow: TextOverflow.ellipsis,
+                      child: Text(header.toUpperCase(), 
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Courier', letterSpacing: 1.2, fontSize: 15, shadows: [Shadow(color: color, blurRadius: 10)]),
                       ),
                     ),
                   ],
@@ -211,37 +193,124 @@ class MissionCard extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
                 child: Text(
                   story,
-                  style: const TextStyle(
-                    color: Color(0xFFE0E0E0),
+                  style: TextStyle(
+                    color: isLog ? Colors.cyanAccent.shade100 : const Color(0xFFDDDDDD),
                     fontSize: 16,
                     height: 1.5,
-                    fontFamily: 'Courier', 
+                    fontFamily: 'Courier',
+                    fontStyle: isLog ? FontStyle.italic : FontStyle.normal,
                   ),
                 ),
               ),
               
-              const Divider(color: Colors.white10, thickness: 1, indent: 20, endIndent: 20),
+              if(!isLog) Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Divider(color: color.withOpacity(0.2)),
+              ),
 
-              // Oyun İçeriği
+              // İçerik (Butonlar/Bulmacalar)
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: content,
               ),
-
-              // Footer Bilgisi
-              if (footerInfo != null)
-                Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: const BoxDecoration(
-                    color: Colors.black54,
-                    border: Border(top: BorderSide(color: Colors.white10)),
-                  ),
-                  child: footerInfo,
-                )
             ],
           ),
         ),
       ),
     );
   }
+}
+
+// --- TAM EKRAN HİKAYE (KRİSTAL TEMA) ---
+void showFullStoryDialog({
+  required BuildContext context,
+  required String title,
+  required String logCode,
+  required String storyText,
+  required Color color,
+  required VoidCallback onContinue,
+}) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: Colors.black,
+    transitionDuration: const Duration(milliseconds: 600),
+    pageBuilder: (ctx, anim1, anim2) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            // Arkaplan Blur
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                child: Container(color: Colors.black.withOpacity(0.6)),
+              ),
+            ),
+            
+            Center(
+              child: Container(
+                margin: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(25),
+                decoration: iceCrystalDecoration(color: color).copyWith(
+                  boxShadow: [BoxShadow(color: color.withOpacity(0.2), blurRadius: 40, spreadRadius: 5)]
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("ENCRYPTED_LOG // $logCode", style: TextStyle(color: color.withOpacity(0.6), fontFamily: 'Courier', fontSize: 12)),
+                        Icon(Icons.lock_open, color: color, size: 18),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    Text(title, style: AppStyles.titleStyle(color).copyWith(fontSize: 24, shadows: [Shadow(color: color, blurRadius: 15)])),
+                    const SizedBox(height: 20),
+                    Divider(color: color.withOpacity(0.4)),
+                    const SizedBox(height: 20),
+                    
+                    // Metin Alanı
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Text(
+                          storyText,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18, 
+                            fontFamily: 'Courier',
+                            height: 1.6,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    
+                    // Buton
+                    SizedBox(
+                      width: double.infinity,
+                      height: 55,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: color.withOpacity(0.1),
+                          side: BorderSide(color: color),
+                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomRight: Radius.circular(10))),
+                          elevation: 0,
+                        ),
+                        onPressed: onContinue,
+                        child: Text("BAĞLANTIYI KES VE İLERLE >", style: TextStyle(color: color, fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 1, fontFamily: 'Courier')),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

@@ -77,7 +77,7 @@ class AppStyles {
       letterSpacing: 6.0,
       shadows: [
         Shadow(color: color.withValues(alpha: 0.5), blurRadius: 20),
-        Shadow(color: Colors.black, blurRadius: 2, offset: Offset(2, 2)),
+        const Shadow(color: Colors.black, blurRadius: 2, offset: Offset(2, 2)),
       ],
     );
   }
