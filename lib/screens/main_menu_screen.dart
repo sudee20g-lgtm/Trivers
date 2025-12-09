@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../utils/app_texts.dart';
-import '../utils/game_data.dart'; // GameData eklendi
+import '../utils/game_data.dart';
 import 'introduction_screen.dart';
 import 'purchase_screen.dart';
-import 'level_selection_screen.dart'; // Direkt geçiş için eklendi
+import 'level_selection_screen.dart';
 
 class MainMenuScreen extends StatelessWidget {
   final bool isMuted;
@@ -27,138 +27,147 @@ class MainMenuScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // 1. ARKA PLAN
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/gif/background.gif'),
-                fit: BoxFit.cover,
+      // DÜZELTME: Tüm ekranı saran GestureDetector.
+      // Kullanıcı herhangi bir yere dokunduğunda müzik başlar.
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent, 
+        onTap: () {
+          // Web tarayıcısının otomatik oynatma kilidini açar
+          onResumeMusic();
+        },
+        child: Stack(
+          children: [
+            // 1. ARKA PLAN
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/gif/background.gif'),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
 
-          // 2. AYARLAR BUTONU
-          Positioned(
-            top: 45,
-            right: 15,
-            child: GestureDetector(
-              onTap: () => _showSettingsDialog(context),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                      color: Colors.cyanAccent.withValues(alpha: 0.5),
-                      width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.cyanAccent.withValues(alpha: 0.2),
-                        blurRadius: 10,
-                        spreadRadius: 1)
-                  ],
+            // 2. AYARLAR BUTONU
+            Positioned(
+              top: 45,
+              right: 15,
+              child: GestureDetector(
+                onTap: () => _showSettingsDialog(context),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        color: Colors.cyanAccent.withValues(alpha: 0.5),
+                        width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.cyanAccent.withValues(alpha: 0.2),
+                          blurRadius: 10,
+                          spreadRadius: 1)
+                    ],
+                  ),
+                  child: const Icon(Icons.settings,
+                      color: Colors.cyanAccent, size: 24),
                 ),
-                child: const Icon(Icons.settings,
-                    color: Colors.cyanAccent, size: 24),
               ),
             ),
-          ),
 
-          // 3. ANA MENÜ BUTONLARI
-          Positioned(
-            bottom: 50,
-            left: 20,
-            right: 20,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // GENİŞ "OYNA" BUTONU
-                _buildWideButton(
-                  text: AppTexts.get('play', language),
-                  onTap: () async {
-                    await onStopMusic();
-                    if (context.mounted) {
-                      // KONTROL: Eğer intro daha önce izlendiyse direkt Level Seçimine git
-                      if (GameData.isIntroSeen) {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => LevelSelectionScreen(
-                              onResumeMusic: onResumeMusic,
-                              language: language,
-                            ),
-                          ),
-                        );
-                      } else {
-                        // İzlenmediyse Introya git
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => IntroductionScreen(
-                              language: language,
-                              onResumeMusic: onResumeMusic,
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                  },
-                ),
-                const SizedBox(height: 25),
-
-                // DİĞER BUTONLAR (AYNI KALDI)
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildMenuButton(
-                        text: AppTexts.get('buy', language),
-                        isSecondary: true,
-                        onTap: () async {
-                          await onStopMusic();
-                          if (context.mounted) {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    PurchaseScreen(language: language),
+            // 3. ANA MENÜ BUTONLARI
+            Positioned(
+              bottom: 50,
+              left: 20,
+              right: 20,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // GENİŞ "OYNA" BUTONU
+                  _buildWideButton(
+                    text: AppTexts.get('play', language),
+                    onTap: () async {
+                      // Oyna'ya basınca da müziği tetikle (garanti olsun)
+                      onResumeMusic();
+                      await onStopMusic();
+                      
+                      if (context.mounted) {
+                        if (GameData.isIntroSeen) {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => LevelSelectionScreen(
+                                onResumeMusic: onResumeMusic,
+                                language: language,
                               ),
-                            );
-                          }
-                          await onResumeMusic();
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: _buildMenuButton(
-                        text: "MOLA",
-                        isPause: true,
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content:
-                                  Text(AppTexts.get('pause_msg', language)),
-                              backgroundColor: Colors.orange,
                             ),
                           );
-                        },
+                        } else {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => IntroductionScreen(
+                                language: language,
+                                onResumeMusic: onResumeMusic,
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 25),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildMenuButton(
+                          text: AppTexts.get('buy', language),
+                          isSecondary: true,
+                          onTap: () async {
+                            await onStopMusic();
+                            if (context.mounted) {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      PurchaseScreen(language: language),
+                                ),
+                              );
+                            }
+                            await onResumeMusic();
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: _buildMenuButton(
+                          text: "MOLA",
+                          isPause: true,
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content:
+                                    Text(AppTexts.get('pause_msg', language)),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  // --- AYARLAR PENCERESİ (AYNI KALDI) ---
+  // --- AYARLAR PENCERESİ ---
   void _showSettingsDialog(BuildContext context) {
     showDialog(
       context: context,

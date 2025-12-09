@@ -24,38 +24,38 @@ class _TriVerseAppState extends State<TriVerseApp> {
   @override
   void initState() {
     super.initState();
-    _playMenuMusic();
+    // DÜZELTME: Burada sadece müziği hazırlıyoruz, OYNATMIYORUZ.
+    // Oynatma işini kullanıcı ekrana dokununca yapacağız.
+    _initializeMusic();
   }
 
-  Future<void> _playMenuMusic() async {
+  // Müziği sadece hafızaya yükler ve ayarlarını yapar
+  Future<void> _initializeMusic() async {
     try {
       await _musicPlayer.setAsset('assets/audio/background.mp3');
       await _musicPlayer.setLoopMode(LoopMode.one);
       await _musicPlayer.setVolume(0.5);
-      
-      if (!_isMuted) {
-        // DÜZELTME BURADA: 'await' eklendi.
-        // Bu sayede tarayıcı otomatik oynatmayı engellerse hata 'catch' bloğuna düşer
-        // ve uygulama durdurulmaz.
-        await _musicPlayer.play();
-      }
+      debugPrint("Müzik başarıyla yüklendi ve hazır.");
     } catch (e) {
-      // Web'de kullanıcı etkileşimi olmadan ses çalınamadığı için buraya düşebilir.
-      // Bu normaldir, debugPrint ile hatayı günlüğe basıp geçiyoruz.
-      debugPrint("Müzik başlatılamadı (Autoplay engeli olabilir): $e");
+      debugPrint("Müzik yükleme hatası: $e");
     }
   }
 
+  // Müziği durdurur
   Future<void> stopMusic() async {
     await _musicPlayer.pause();
   }
 
+  // Müziği başlatır (Bunu menüden tetikleyeceğiz)
   Future<void> resumeMusic() async {
     if (!_isMuted) {
       try {
-        await _musicPlayer.play();
+        // Eğer zaten çalıyorsa tekrar başlatma
+        if (!_musicPlayer.playing) {
+          await _musicPlayer.play();
+        }
       } catch (e) {
-        debugPrint("Müzik devam ettirilemedi: $e");
+        debugPrint("Müzik çalma hatası: $e");
       }
     }
   }
@@ -65,8 +65,7 @@ class _TriVerseAppState extends State<TriVerseApp> {
     if (_isMuted) {
       _musicPlayer.pause();
     } else {
-      // Burada da await eklemek ve hatayı yakalamak iyi bir pratiktir
-      _musicPlayer.play().catchError((e) => debugPrint("Sessiz mod kapatılırken hata: $e"));
+      _musicPlayer.play();
     }
   }
 
