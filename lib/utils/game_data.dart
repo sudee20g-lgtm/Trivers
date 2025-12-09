@@ -1,32 +1,41 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GameData {
-  // Varsayılan olarak 1. seviye açık
   static int highestUnlockedLevel = 1;
-  static const String _storageKey = 'saved_level';
+  static bool isIntroSeen = false; // YENİ: Giriş izlendi mi kontrolü
 
-  // Uygulama açılırken kayıtlı veriyi yükle
+  static const String _levelKey = 'saved_level';
+  static const String _introKey = 'intro_seen'; // YENİ ANAHTAR
+
+  // Verileri Yükle
   static Future<void> loadProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    // Kayıtlı veri varsa onu al, yoksa 1 yap
-    highestUnlockedLevel = prefs.getInt(_storageKey) ?? 1;
+    highestUnlockedLevel = prefs.getInt(_levelKey) ?? 1;
+    isIntroSeen = prefs.getBool(_introKey) ?? false; // YENİ: Kayıtlı veriyi oku
   }
 
-  // Seviye atlayınca kaydet
+  // Seviye Kaydet
   static Future<void> unlockNextLevel(int currentLevel) async {
     if (currentLevel >= highestUnlockedLevel) {
       highestUnlockedLevel = currentLevel + 1;
-      
-      // Kalıcı hafızaya yaz
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(_storageKey, highestUnlockedLevel);
+      await prefs.setInt(_levelKey, highestUnlockedLevel);
     }
   }
+
+  // YENİ: İntroyu izlendi olarak işaretle
+  static Future<void> markIntroAsSeen() async {
+    isIntroSeen = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_introKey, true);
+  }
   
-  // (İsteğe bağlı) Oyunu sıfırlamak istersen kullanacağın method
+  // Sıfırlama (Geliştirici için)
   static Future<void> resetProgress() async {
     highestUnlockedLevel = 1;
+    isIntroSeen = false;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_storageKey, 1);
+    await prefs.setInt(_levelKey, 1);
+    await prefs.setBool(_introKey, false);
   }
 }

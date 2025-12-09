@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../utils/app_texts.dart';
+import '../utils/game_data.dart'; // GameData eklendi
 import 'introduction_screen.dart';
 import 'purchase_screen.dart';
+import 'level_selection_screen.dart'; // Direkt geçiş için eklendi
 
 class MainMenuScreen extends StatelessWidget {
   final bool isMuted;
@@ -39,14 +41,14 @@ class MainMenuScreen extends StatelessWidget {
             ),
           ),
 
-          // 2. AYARLAR BUTONU (KÜÇÜLTÜLDÜ VE KÖŞEYE ALINDI)
+          // 2. AYARLAR BUTONU
           Positioned(
-            top: 45, // Status barın hemen altına
-            right: 15, // Köşeye iyice yanaştı
+            top: 45,
+            right: 15,
             child: GestureDetector(
               onTap: () => _showSettingsDialog(context),
               child: Container(
-                padding: const EdgeInsets.all(8), // Çerçeve inceldi
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Colors.black54,
                   shape: BoxShape.circle,
@@ -60,14 +62,13 @@ class MainMenuScreen extends StatelessWidget {
                         spreadRadius: 1)
                   ],
                 ),
-                // İkon küçüldü (24 standart boyuttur)
                 child: const Icon(Icons.settings,
                     color: Colors.cyanAccent, size: 24),
               ),
             ),
           ),
 
-          // 3. ANA MENÜ BUTONLARI (ALT KISIM)
+          // 3. ANA MENÜ BUTONLARI
           Positioned(
             bottom: 50,
             left: 20,
@@ -81,27 +82,41 @@ class MainMenuScreen extends StatelessWidget {
                   onTap: () async {
                     await onStopMusic();
                     if (context.mounted) {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => IntroductionScreen(
-                            language: language,
-                            onResumeMusic: onResumeMusic,
+                      // KONTROL: Eğer intro daha önce izlendiyse direkt Level Seçimine git
+                      if (GameData.isIntroSeen) {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => LevelSelectionScreen(
+                              onResumeMusic: onResumeMusic,
+                              language: language,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        // İzlenmediyse Introya git
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => IntroductionScreen(
+                              language: language,
+                              onResumeMusic: onResumeMusic,
+                            ),
+                          ),
+                        );
+                      }
                     }
                   },
                 ),
                 const SizedBox(height: 25),
 
-                // YAN YANA "SATIN AL" ve "MOLA"
+                // DİĞER BUTONLAR (AYNI KALDI)
                 Row(
                   children: [
                     Expanded(
                       child: _buildMenuButton(
                         text: AppTexts.get('buy', language),
-                        isSecondary: true, // Mor renk
+                        isSecondary: true,
                         onTap: () async {
                           await onStopMusic();
                           if (context.mounted) {
@@ -121,7 +136,7 @@ class MainMenuScreen extends StatelessWidget {
                     Expanded(
                       child: _buildMenuButton(
                         text: "MOLA",
-                        isPause: true, // Turuncu renk
+                        isPause: true,
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -143,12 +158,12 @@ class MainMenuScreen extends StatelessWidget {
     );
   }
 
-  // --- AYARLAR PENCERESİ ---
+  // --- AYARLAR PENCERESİ (AYNI KALDI) ---
   void _showSettingsDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.black.withOpacity(0.9),
+        backgroundColor: Colors.black.withValues(alpha: 0.9),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: const BorderSide(color: Colors.cyanAccent, width: 2)),
@@ -165,7 +180,6 @@ class MainMenuScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Divider(color: Colors.grey),
-            // DİL SEÇİMİ
             ListTile(
               leading: const Icon(Icons.language, color: Colors.white),
               title: const Text("Dil / Language",
@@ -180,7 +194,6 @@ class MainMenuScreen extends StatelessWidget {
               ),
             ),
             const Divider(color: Colors.grey),
-            // SES AÇ/KAPA
             ListTile(
               leading: Icon(isMuted ? Icons.volume_off : Icons.volume_up,
                   color: isMuted ? Colors.redAccent : Colors.greenAccent),
@@ -229,7 +242,6 @@ class MainMenuScreen extends StatelessWidget {
     );
   }
 
-  // --- BUTON TASARIMLARI ---
   Widget _buildWideButton({required String text, required VoidCallback onTap}) {
     const Color neonColor = Colors.cyanAccent;
     final List<Color> glowColors = [

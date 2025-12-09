@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
 import '../utils/app_texts.dart';
+import '../utils/game_data.dart';
 import 'level_selection_screen.dart';
 
 class IntroductionScreen extends StatefulWidget {
@@ -23,10 +23,6 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
   String _displayed = "";
   int _index = 0;
   Timer? _timer;
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  
-  // Sesin üst üste binip çökmesini önlemek için basit bir kontrol bayrağı
-  bool _isPlayingSound = false; 
 
   @override
   void initState() {
@@ -34,18 +30,12 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     _story = AppTexts.get('intro_story', widget.language);
 
     _timer = Timer.periodic(const Duration(milliseconds: 30), (t) {
-      // ÖNEMLİ DÜZELTME: Widget ekranda değilse işlemi durdur (Çökme Engellendi)
       if (!mounted) {
         t.cancel();
         return;
       }
 
       if (_index < _story.length) {
-        // Boşluk karakterlerinde ses çalma
-        if (_story[_index] != ' ') {
-          _playTypeSound();
-        }
-
         setState(() {
           _displayed += _story[_index];
           _index++;
@@ -56,29 +46,9 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     });
   }
 
-  // Güvenli Ses Çalma Fonksiyonu
-  Future<void> _playTypeSound() async {
-    // Eğer zaten bir ses işleniyorsa veya widget yoksa atla
-    if (_isPlayingSound || !mounted) return;
-
-    _isPlayingSound = true;
-    try {
-      // stop() çağrısı bazen gecikme yaratabilir, doğrudan çalmayı dene
-      // Veya kısa sesler için stop'a gerek olmayabilir.
-      await _audioPlayer.stop(); 
-      await _audioPlayer.play(AssetSource('audio/typewriter_key.mp3'), volume: 0.3);
-    } catch (e) {
-      // Ses dosyası yoksa veya hata olursa uygulamanın çökmesini engelle
-      debugPrint("Ses hatası: $e");
-    } finally {
-      _isPlayingSound = false;
-    }
-  }
-
   @override
   void dispose() {
     _timer?.cancel();
-    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -109,8 +79,10 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.cyanAccent),
-                onPressed: () {
-                  // Sayfa geçişinde hata olmaması için mounted kontrolü
+                onPressed: () async {
+                  // Kullanıcı introyu bitirdi, kaydediyoruz.
+                  await GameData.markIntroAsSeen();
+
                   if (context.mounted) {
                     Navigator.pushReplacement(
                         context,

@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'screens/main_menu_screen.dart'; // Dosya yapına göre bu yolun doğruluğundan emin ol (örn: lib/screens/...)
-import 'utils/game_data.dart'; // GameData importu
+import 'screens/main_menu_screen.dart';
+import 'utils/game_data.dart';
 
 void main() async {
-  // Flutter motorunun ve async işlemlerin hazır olduğundan emin ol
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Kayıtlı oyun verilerini yükle (Shared Preferences'dan okur)
-  // Bu işlem bitmeden uygulama ekranını çizmeye başlamaz, böylece doğru seviye ile açılır.
   await GameData.loadProgress();
-
   runApp(const TriVerseApp());
 }
 
@@ -22,9 +17,9 @@ class TriVerseApp extends StatefulWidget {
 }
 
 class _TriVerseAppState extends State<TriVerseApp> {
-  final AudioPlayer _musicPlayer = AudioPlayer(); // Menü Müziği Oynatıcısı
+  final AudioPlayer _musicPlayer = AudioPlayer();
   bool _isMuted = false;
-  String _language = 'TR'; // Varsayılan Dil
+  String _language = 'TR';
 
   @override
   void initState() {
@@ -32,44 +27,49 @@ class _TriVerseAppState extends State<TriVerseApp> {
     _playMenuMusic();
   }
 
-  // Menü Müziğini Başlat
   Future<void> _playMenuMusic() async {
     try {
-      // Müzik dosyasının 'pubspec.yaml' dosyasında assets altına ekli olduğundan emin ol.
-      // Örn: assets/audio/background.mp3
       await _musicPlayer.setAsset('assets/audio/background.mp3');
-      await _musicPlayer.setLoopMode(LoopMode.one); // Müziği döngüye al
-      await _musicPlayer.setVolume(0.5); // Ses seviyesi %50
+      await _musicPlayer.setLoopMode(LoopMode.one);
+      await _musicPlayer.setVolume(0.5);
       
       if (!_isMuted) {
-        _musicPlayer.play();
+        // DÜZELTME BURADA: 'await' eklendi.
+        // Bu sayede tarayıcı otomatik oynatmayı engellerse hata 'catch' bloğuna düşer
+        // ve uygulama durdurulmaz.
+        await _musicPlayer.play();
       }
     } catch (e) {
-      debugPrint("Müzik yükleme hatası: $e");
+      // Web'de kullanıcı etkileşimi olmadan ses çalınamadığı için buraya düşebilir.
+      // Bu normaldir, debugPrint ile hatayı günlüğe basıp geçiyoruz.
+      debugPrint("Müzik başlatılamadı (Autoplay engeli olabilir): $e");
     }
   }
 
-  // Oyuna girince (Play'e basınca) müziği durdur
   Future<void> stopMusic() async {
     await _musicPlayer.pause();
   }
 
-  // Menüye geri dönünce müziği tekrar başlat
   Future<void> resumeMusic() async {
-    if (!_isMuted) await _musicPlayer.play();
+    if (!_isMuted) {
+      try {
+        await _musicPlayer.play();
+      } catch (e) {
+        debugPrint("Müzik devam ettirilemedi: $e");
+      }
+    }
   }
 
-  // Sesi aç/kapa (Mute butonu için)
   void toggleMute() {
     setState(() => _isMuted = !_isMuted);
     if (_isMuted) {
       _musicPlayer.pause();
     } else {
-      _musicPlayer.play();
+      // Burada da await eklemek ve hatayı yakalamak iyi bir pratiktir
+      _musicPlayer.play().catchError((e) => debugPrint("Sessiz mod kapatılırken hata: $e"));
     }
   }
 
-  // Dil Değiştirme Fonksiyonu
   void changeLanguage(String lang) {
     setState(() {
       _language = lang;
@@ -79,12 +79,11 @@ class _TriVerseAppState extends State<TriVerseApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // Sağ üstteki "Debug" bandını kaldırır
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        brightness: Brightness.dark, // Genel karanlık tema
-        fontFamily: 'Courier', // Terminal/Hacker tarzı font
+        brightness: Brightness.dark,
+        fontFamily: 'Courier',
       ),
-      // Ana Menü Ekranını Başlat
       home: MainMenuScreen(
         isMuted: _isMuted,
         language: _language,
